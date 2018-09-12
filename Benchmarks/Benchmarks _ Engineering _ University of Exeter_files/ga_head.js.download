@@ -1,0 +1,53 @@
+/* <![CDATA[ */
+
+
+ /**
+ * Namespace.
+ * @type {Object}.
+ */
+var _ga = _ga || {};
+
+
+/**
+ * Ensure global _gaq Google Analytics queue has been initialized.
+ * @type {Array}
+ */
+var _gaq = _gaq || [];
+
+
+  var gaids =  new Array();
+gaids["computer-science"]="UA-31626397-1";
+gaids["csm"]="UA-31636311-1";
+gaids["engineering"]="UA-31632745-1";
+gaids["geology"]="UA-31635320-1";
+gaids["mathematics"]="UA-31625089-1";
+gaids["medical-imaging"]="UA-31630172-1";
+gaids["mining-minerals-engineering"]="UA-31625599-1";
+gaids["physics-astronomy"]="UA-31628073-1";
+gaids["renewable-energy"]="UA-31626796-1";
+var directoryUrl = location.pathname.split('/')[1];
+var gaUse = gaids[directoryUrl];
+if (gaUse === undefined) {
+	gaUse = "UA-32468113-1";
+}
+
+//main account -   //emps accounts
+ var emps =  _gaq.push(
+  ['_setAccount', 'UA-7878092-1'],
+  ['_setDomainName', 'exeter.ac.uk'],
+  ['_trackPageview'],
+  ['t2._setAccount', gaUse],
+  ['t2._trackPageview']
+  );
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+ 
+			  
+			  
+			  
+/* ]]> */

@@ -1,0 +1,163 @@
+/* ----------------------------------------------------------------
+	Egineering colours
+
+	dark grey #51626f
+	light grey #edeff0
+
+---------------------------------------------------------------- */
+
+
+/* ----------------------------------------------------------------
+	General
+---------------------------------------------------------------- */
+h1,h2,h3,h4 { color:#51626f; }
+th { background-color:#51626f; }
+td { background-color:#e0e0e0; }
+
+h1 { font-size:1.3em; }
+h2 { font-size:1.1em; }
+h3 { font-size:0.8em; font-weight:bold; font-family:Arial, Helvetica, sans-serif; }
+h4 { font-size:0.8em; font-weight:normal; }
+
+/*classes */
+.rightimage { background-color:#e0e0e0; background-image:url(/media/universityofexeter/webteam/styleassets/images/enginbottom.gif); }
+.intro { color:#51626f; font-weight:bold; }
+table.profile th, table.profile td { background-color:#ffffff; padding:0; padding-right:10px; }
+table.profile th { color:#51626f; font-weight:normal; }
+
+
+/* ----------------------------------------------------------------
+	Right nav
+---------------------------------------------------------------- */
+div#rightnav { color:#666666; background-color:#e0e0e0; background-image:url(/media/universityofexeter/webteam/styleassets/images/enginbottom.gif); background-position:bottom left; background-repeat:no-repeat; }
+
+div#navheading { position:relative; top:0; left:0; margin:0; padding:0; font-family:Arial, Helvetica, sans-serif, Bitstream Vera Sans; font-size:0.8em; line-height:1.4em; background-color:#51626f; font-weight:bold; color:#ffffff; padding:4px 3px 7px 10px; width:205px; }
+
+div#rightnav ul { margin:0; padding-bottom:5px; }
+
+div#rightnav ul li { margin:0; padding:0; color:#666666; line-height:1.4em; } 
+
+div#rightnav ul li a:link, div#rightnav ul li a:visited { text-decoration:none; display:block; color:#666666; padding:4px 3px 7px 10px; width:205px; }
+
+div#rightnav ul li a:hover, div#rightnav ul li a:active { text-decoration:none; display:block; background-color:#666666; color:#ffffff; padding:4px 3px 7px 10px; width:205px; }
+
+div#rightnav ul li span { text-decoration:none; display:block; background-color:#666666; color:#ffffff; padding:4px 3px 7px 10px; width:205px; }
+
+div#rightnav ul li span a:link, div#rightnav ul li span a:visited { margin:0; padding:0; color:#ffffff; }
+
+div#rightnav ul li span a:hover, div#rightnav ul li span a:active { color:#000000; }
+
+div#progHead ul li  {background-color:#51626f;color:#fff;}
+div#progHead ul li  a:link, div#progHead ul li  a:visited  {background-color:#51626f;color:#fff;}
+div#progHead ul li a:hover  {color:#000;} 
+/* ----------------------------------------------------------------
+	Content
+---------------------------------------------------------------- */
+
+div#pageheader { position:relative; top:0; left:0; margin:0; padding:0; font-family:Georgia, Arial, Helvetica, sans-serif; font-size:1.5em; line-height:1.2em; padding-bottom:10px; font-weight:normal; color:#ffffff; background-image:url(/media/universityofexeter/webteam/styleassets/images/enginheader.gif); background-position:left; background-repeat:no-repeat; background-color:#51626f; padding:5px 0 5px 20px; margin-bottom:20px; width:672px; }
+
+div#pageheader a:link, div#pageheader a:visited { color:#ffffff; text-decoration:none; }
+div#pageheader a:hover, div#pageheader a:active { color:#ffffff; text-decoration:underline; }
+
+.twocolimage { background-image:url(/media/universityofexeter/webteam/styleassets/images/enginbottom.gif); }
+.threecolimage { background-image:url(/media/universityofexeter/webteam/styleassets/images/enginbottom.gif); }
+
+/* simple box */
+.box { background-color:#e0e0e0; background-image:url(/media/universityofexeter/webteam/styleassets/images/enginbottom.gif); background-repeat:repeat-x; }
+.box h1 { background-image:url(/media/universityofexeter/webteam/styleassets/images/engintop.gif); background-position:top right; background-color:#51626f; }
+.box ul li a:hover, .box ul li a:active { background-color:#666666; }
+.box p { padding:3px 3px 10px 10px; }
+.box p a:link, .box p a:visited { color:#666666; font-weight:bold; text-decoration:none; }
+.box p a:hover, .box p a:active { color:#666666; font-weight:bold; text-decoration:underline; }
+.box ul li.bottom { padding-bottom:5px; }
+.box ul li.bottom a:hover, .box ul li.bottom a:active { background-image:none; background-color:#666666; }
+
+/* full width plain box */
+div#boxplain { background-color:#e0e0e0; }
+
+/* third width plain box */
+div#boxplainnarrow { background-color:#e0e0e0; }
+
+/* splash top */
+div#splashtop { background-color:#e0e0e0; }
+div#splashheading { display:none; }
+div#splashbody { background-color:#e0e0e0; margin-top:-20px; }
+div#splashbodynolink { position:relative; top:0; left:0; margin:0; padding:0; width:692px; background-color:#e0e0e0; margin-top:-20px; }
+div#splashbodynolink .introtext { color:#666666; font-weight:bold; line-height:1.4em; margin-left:470px; margin-top:-267px; width:200px; min-height:267px; }
+div#splashbodynolink .introtext a { font-weight:normal; }
+
+/* quotes */
+.quote { background-image:url(/media/universityofexeter/webteam/styleassets/images/engin_quote_left.gif); background-color:#edeff0;display:table;width:auto;margin-top:5px; }
+.quote_inner { background-image:url(/media/universityofexeter/webteam/styleassets/images/engin_quote_right.gif); color:#51626f; }
+
+.quotenarrow { background-image:url(/media/universityofexeter/webteam/styleassets/images/engin_quote_left.gif); background-color:#edeff0; }
+.quotenarrow_inner { background-image:url(/media/universityofexeter/webteam/styleassets/images/engin_quote_right.gif); color:#51626f; }
+
+/* staff profiles */
+.profile { border:#51626f 1px solid; }
+
+.profilenarrow { border:#51626f 1px solid; }
+
+/* highlight boxes */
+.highlight { background-image:url(/media/universityofexeter/webteam/styleassets/images/enginbottom.gif); background-color:#e0e0e0; }
+
+.highlightnarrow { background-image:url(/media/universityofexeter/webteam/styleassets/images/enginbottom.gif); background-color:#e0e0e0; }
+
+#smicons {
+bottom:14px;
+position:absolute;
+}
+div#splashbodynolink .introtext, div#splashbody .introtext{
+margin-left:474px;
+}
+.box, div#boxplainnarrow {
+margin-right:19px;
+}
+.hidden{
+display:none;
+}
+#questions fieldset {
+border:none;
+}
+#questions label{
+display:block;
+margin:15px 0;
+padding:0px;
+}
+#questions textarea{
+width:459px;
+}
+#questions label.missed {
+color:#FF0000;
+}
+
+#questions label input{
+float:right;
+margin-right:220px;
+}
+
+ul#twitter_update_list li span {
+font-weight:bold;
+}
+ul#twitter_update_list li {
+padding:5px 10px;
+border:1px solid #ccc;
+border-top:none;
+}
+ul#twitter_update_list li a {
+display:inline;
+}
+ul#twitter_update_list li.twOdd {
+background-color:#FAFBFF;
+}
+ul#twitter_update_list li.twEven {
+background-color:#E6F0F5;
+}			 
+ul#twitter_update_list {
+padding:0;
+width:218px;
+border-bottom:5px #51626F solid;
+}	 
+#twtr-widget-1 p {
+font-size:1em;
+}

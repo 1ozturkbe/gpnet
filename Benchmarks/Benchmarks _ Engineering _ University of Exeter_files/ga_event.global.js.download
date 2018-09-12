@@ -1,0 +1,103 @@
+
+ var pageTracker = {};
+pageTracker._trackEvent  = function(category, event, href, opt_value) {
+	_gaq.push(_ga.getEventTrackers_(category, event, href, opt_value));
+}
+if (document.location.href.indexOf("climateassist") == -1 && document.location.href.indexOf("strategy") == -1) {
+jQuery.noConflict();
+} else {
+jQuery = $;
+}
+jQuery(document).ready(function($){
+ 
+var newsTitle= $(".intro").prev().text();
+$(".twitter-share-button").attr("text", newsTitle);
+    $('a').click(function () {
+        var $a = $(this);
+        var href = $a.attr('href');
+        if ((href.match(/^http/i)) && (!href.match(document.domain))) {
+            var category = 'outgoing';
+            var event = 'click';
+            var label = href;
+           _gaq.push(_ga.getEventTrackers_(category, event, href));
+        } else {
+            if (href.match(/\.(doc|pdf|xls|ppt|zip|txt|vsd|vxd|js|css|rar|exe|wma|mov|avi|wmv|mp3)$/i)) {
+                var category = 'download';
+                var event = 'click';
+                var label = href;
+             	  _gaq.push(_ga.getEventTrackers_(category, event, href));
+            } else {
+                if (href.match(/^mailto:/i)) {
+                    var category = 'mailto';
+                    var event = 'click';
+                    var label = href;
+				  _gaq.push(_ga.getEventTrackers_(category, event, href));
+                }
+            }
+        }
+    });
+    $("#rightcolumn p:empty").remove();
+
+ _ga.getEventTrackers_ = function(category, action, opt_label, opt_value) {
+                //we can return this anonnymous function and pass it to the _gaq
+                return function() {
+                    var trackers = _gat._getTrackers(); //Gets an array of allt he trackers from the _gat object
+                    for (var x = 0, tracker; tracker = trackers[x]; x++) {
+                        //Now we have a handle to a tracker, we can send the event to GA
+                        //The tracker returns a boolean true if the event was successfully tracked, false otherwise
+                        var result = tracker._trackEvent(category, action, opt_label, opt_value);
+                        //for debugging the event tracking we can check the return value
+                        if(result) {
+                       //     console.log(tracker._getAccount() + "Tracked > " + category + "| Event > " + action + "| Label > " + opt_label + "| Value > " +  " successfully"); //log the event to the console.
+                        } else {
+                         //   console.log("Tracking >" + category + "| Event > " + action + "| Label > " + opt_label +  "| Value > " + " FAILED"); //log the event to the console.
+                        }
+                    }
+                };
+            };            
+ // EMPS Only code for PG buttons
+ var pageUrl = document.location.href.split('/');
+ 
+ //console.log(pageUrl.split('/')[3]);
+ //3 is subject
+ //4 is level
+ console.log(pageUrl[3]);
+ switch (pageUrl[3]) {
+  case "engineering" :
+		linkedIn = "https://www.linkedin.com/groups?gid=8182852&trk=groups%2Fmost_popular-r-subgr-subgrpname&goback=.gmp_8184045";
+		cssClass = "eng";
+		break; 
+	case "mathematics" :
+		linkedIn = "https://www.linkedin.com/groups?gid=8182874&trk=groups%2Fmost_popular-r-subgr-subgrpname&goback=.gmp_8184045";
+		cssClass = "maths";
+		break;
+	case "computer-science" :
+		linkedIn = "https://www.linkedin.com/groups?gid=8182874&trk=groups%2Fmost_popular-r-subgr-subgrpname&goback=.gmp_8184045";
+		cssClass = "comp";
+		break; 
+	case "renewable-energy" :
+		linkedIn = "https://www.linkedin.com/groups?gid=8182852&trk=groups%2Fmost_popular-r-subgr-subgrpname&goback=.gmp_8184045";
+		cssClass = "renew";
+		break; 
+	case "mining-minerals-engineering" :
+		linkedIn = "https://www.linkedin.com/groups?gid=8183717&trk=groups%2Fmost_popular-r-subgr-subgrpname&goback=.gmp_8184045";
+		cssClass = "mining";
+		break; 
+
+	case "geology" :
+		linkedIn = "https://www.linkedin.com/groups?gid=8183717&trk=groups%2Fmost_popular-r-subgr-subgrpname&goback=.gmp_8184045";
+		cssClass = "geol";
+		break; 
+	default :
+		linkedIn = "https://www.linkedin.com/groups/University-Exeter-Postgraduate-Study-2015-8184045";
+ }
+ 
+ 
+ if (pageUrl[4]=="postgraduate" && false ) {
+	$("#rightcolumn").prepend("<a href='"+linkedIn+"' class='but "+cssClass+"'><img src='//emps.exeter.ac.uk/includes/img/pglinkedlogo.png' style='margin:4px 8px 4px 2px;float:left;width:35px;' />Join our Postgraduate LinkedIn group &raquo;</a><br style='clear:both;margin-bottom:15px;' /><a style='margin-bottom:10px;' href='http://emps.ex.ac.uk/postgraduate/newsletter' class='but "+cssClass+"'>Sign-up to our monthly postgraduate newsletter &raquo;</a>");
+ }
+ 
+
+});
+
+   
