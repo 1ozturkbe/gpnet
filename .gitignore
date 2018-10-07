@@ -1,0 +1,9 @@
+
+latex/main.log
+*.iml
+*.xml
+*.asv
+*.aux
+*.gz
+*.m
+latex/main.pdf
