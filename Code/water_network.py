@@ -30,6 +30,7 @@ if __name__ == '__main__':
 
     water_distribution.substitutions.update({
         "L": L,
+        "Sr": sources,
         "Sk": sinks,
         "\\epsilon": roughness,
         "x": connect,

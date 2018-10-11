@@ -48,8 +48,7 @@ class IncompressibleFluidNetworkDistribution(Model):
                     H[i] >= H_min[i]
                 ])
                 if i > 0:
-                    constraints.extend([sum(H * connect[:, i]) >= H[i] + sum(H_loss[:, i] * connect[:, i]),
-                                        source[i] <= 1e-30 * units.m ** 3 / units.s])
+                    constraints.extend([sum(H * connect[:, i]) >= H[i] + sum(H_loss[:, i] * connect[:, i])])
                 for j in range(0, N):
                     constraints += [flow[i, j] <= connect[i, j] * maxFlow[i, j],
                                     connect[i, j] <= 1,
@@ -68,7 +67,7 @@ class IncompressibleFluidNetworkDistribution(Model):
                                     + 0.00301918 * Re[i, j] ** -0.0220498 * relRough[i, j] ** 1.73526 + 0.0734922 * Re[
                                         i, j] ** -1.13629 * relRough[i, j] ** 0.0574655
                                     + 0.000214297 * Re[i, j] ** 0.00035242 * relRough[i, j] ** 0.823896]
-                    constraints += [f[i,j] <= 1e20]
+                    constraints += [f[i,j] <= 10]
             for i in range(0, N):
                 for j in range(i + 1, N):
                     constraints.extend([connect[i, j] * connect[j, i] <= 1e-20,
