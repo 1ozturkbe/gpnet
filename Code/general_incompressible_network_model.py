@@ -33,7 +33,6 @@ class IncompressibleFluidNetworkDistribution(Model):
         rho = Variable("\\rho", "kg/m^3", "Density")
         mu = Variable("\\mu", "kg/m/s", "Viscosity")
         g = Variable("g", "m/s^2", "Gravity")
-        # flowCostFactor = Variable("FC_f", "s/m^5.5")
 
         constraints = []
 
@@ -67,7 +66,7 @@ class IncompressibleFluidNetworkDistribution(Model):
                                     + 0.00301918 * Re[i, j] ** -0.0220498 * relRough[i, j] ** 1.73526 + 0.0734922 * Re[
                                         i, j] ** -1.13629 * relRough[i, j] ** 0.0574655
                                     + 0.000214297 * Re[i, j] ** 0.00035242 * relRough[i, j] ** 0.823896]
-                    constraints += [f[i,j] <= 10]
+                    constraints += [f[i, j] <= 10]
             for i in range(0, N):
                 for j in range(i + 1, N):
                     constraints.extend([connect[i, j] * connect[j, i] <= 1e-20,
@@ -76,6 +75,8 @@ class IncompressibleFluidNetworkDistribution(Model):
                                         L[i, j] == L[j, i]])
             constraints += [totalCost >= np.sum(flow * flowCost + conCost * connect) * (
                     1 + slackCost * np.prod(slack_1) * np.prod(slack_2))]
+            # constraints += [totalCost >= np.sum(flow * flowCost + conCost * connect) +
+                            # slackCost * np.prod(slack_1) * np.prod(slack_2)]
             constraints += [H[0] == 100 * units.m]
         return constraints
 
