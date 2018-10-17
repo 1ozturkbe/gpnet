@@ -23,10 +23,10 @@ if __name__ == '__main__':
     #                30: (-552.38, 4369.06), 31: (-549.36, 5137.63), 32: (536.45, 5137.63), 1: (5360.71, 1354.05)}
     # Small problem
     N = 5
-    sinks = [0,5,10,10,5]
+    sinks = [0,50,100,100,50]
     sources = [sum(sinks), 0,0,0,0]
-    topology_list = [[0,1],[1,2],[2,1],[1,3],[3,1],[2,4],[4,2],[3,4],[4,3]]
-    coordinates = {0: (0,100), 1: (0,0), 2: (100,0), 3:(-100,0), 4:(100,-100)}
+    topology_list = [[0,1],[1,2],[1,3],[2,4],[3,4]]
+    coordinates = {0: (0,1000), 1: (0,0), 2: (1000,0), 3:(-1000,0), 4:(1000,-1000)}
     connect = define_topology(topology_list,N)
     L_all = define_length(coordinates)
     L = [L_all[pipe[0]][pipe[1]] for pipe in topology_list]
@@ -48,10 +48,10 @@ if __name__ == '__main__':
         "D_{max}": 1.016,
         "D_{min}": 0.3048,
         "F_{max}": 1e20,
-        "C_s": 1e8,
+        "C_s": 1,
     })
 
     water_distribution.cost = water_distribution['C']
 
-    sol = water_distribution.localsolve(verbosity=4, reltol=1e-5, iteration_limit=150)
+    sol = water_distribution.localsolve(verbosity=4, reltol=1e-7, iteration_limit=150)
 

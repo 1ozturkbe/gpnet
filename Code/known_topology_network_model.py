@@ -12,8 +12,10 @@ class KnownTopologyFluidNetworkDistribution(Model):
         sink = VectorVariable(N, "Sk", "m^3/s", "Sink")
         rough = Variable("\\epsilon", "m", "Pipe Roughness")
         relRough = VectorVariable(number_of_pipes ,"\\epsilon/D", "-", "Relative Pipe Roughness")
-        flowCost = VectorVariable(number_of_pipes, "C_f", "s/m^3",
-                                  "Pipe Flow Cost")
+        flowCost = VectorVariable(number_of_pipes, "C_f", "-",
+                                  "Flow Cost")
+        pipeCost = VectorVariable(number_of_pipes, "P_f", "-",
+                                  "Pipe Cost")
         L = VectorVariable(number_of_pipes, "L", "m", "Pipe Length")
         D = VectorVariable(number_of_pipes, "D", "m", "Pipe Diameter")
         maxFlow = Variable("F_{max}", "m^3/s", 'Maximum Flow Rate')
@@ -25,7 +27,7 @@ class KnownTopologyFluidNetworkDistribution(Model):
         slack_1 = VectorVariable(N, "S_1", "-", "First Slack")
         slack_2 = VectorVariable(N, "S_2", "-", "Second Slack")
         slackCost = Variable("C_s", "-", "Slack Cost")
-        totalCost = Variable("C", "-", "Total Cost")
+        totalCost = Variable("C", "m^3/s", "Total Cost")
         D_max = Variable("D_{max}", "m", "Maximum Diameter")
         D_min = Variable("D_{min}", "m", "Minimum Diameter")
         rho = Variable("\\rho", "kg/m^3", "Density")
@@ -66,7 +68,8 @@ class KnownTopologyFluidNetworkDistribution(Model):
 
             for pipe_index in xrange(number_of_pipes):
                 constraints += [flow[pipe_index] <= maxFlow,
-                                flowCost[pipe_index] == 1.1 * D[pipe_index] ** 1.5 * L[pipe_index] * units.s / units.m ** 5.5,
+                                pipeCost[pipe_index] == 1.1 * D[pipe_index] ** 1.5 * L[pipe_index]/units.m**2.5,
+                                flowCost[pipe_index] == V[pipe_index] * H_loss[pipe_index]/units.m**2*units.s,
                                 H_loss[pipe_index] == f[pipe_index] * L[pipe_index] * V[pipe_index] ** 2 / (2 * D[pipe_index] * g),
                                 V[pipe_index] == 4 * flow[pipe_index] / (np.pi * D[pipe_index] ** 2),
                                 relRough[pipe_index] == rough / D[pipe_index],
@@ -82,7 +85,7 @@ class KnownTopologyFluidNetworkDistribution(Model):
                                 relRough[pipe_index] ** 0.823896]
                 constraints += [f[pipe_index] <= 10]
 
-            constraints += [totalCost >= np.sum(flow * flowCost) * (
+            constraints += [totalCost >= np.sum(flow * (flowCost + pipeCost)) * (
                     1 + slackCost * np.prod(slack_1) * np.prod(slack_2))]
             constraints += [H[0] == 100 * units.m]
         return constraints
