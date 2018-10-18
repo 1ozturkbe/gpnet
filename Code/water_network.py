@@ -1,5 +1,5 @@
 from general_incompressible_network_model import IncompressibleFluidNetworkDistribution
-from known_topology_network_model import KnownTopologyFluidNetworkDistribution
+from known_topology_network_model import KTFND
 from generate_data import define_topology, define_length
 
 if __name__ == '__main__':
@@ -22,19 +22,24 @@ if __name__ == '__main__':
     #                26: (3077.46, 5137.63), 27: (3933.52, 5133.78), 28: (846.04, 2588.20), 29: (-552.41, 2588.20),
     #                30: (-552.38, 4369.06), 31: (-549.36, 5137.63), 32: (536.45, 5137.63), 1: (5360.71, 1354.05)}
     # Small problem
-    N = 5
-    sinks = [0,50,100,100,50]
-    sources = [sum(sinks), 0,0,0,0]
-    topology_list = [[0,1],[1,2],[1,3],[2,4],[3,4]]
-    coordinates = {0: (0,1000), 1: (0,0), 2: (1000,0), 3:(-1000,0), 4:(1000,-1000)}
+    # N = 5
+    # sinks = [0,50,100,100,50]
+    # sources = [sum(sinks), 0,0,0,0]
+    # topology_list = [[0,1],[1,2],[1,3],[2,4],[3,4]]
+    # coordinates = {0: (0,1000), 1: (0,0), 2: (1000,0), 3:(-1000,0), 4:(1000,-1000)}
+    # Small tree problem
+    N = 3
+    sinks = [0,5,10]
+    sources = [sum(sinks), 0,0]
+    topology_list = [[0,1],[1,2]]
+    coordinates = {0: (0,1000), 1: (0,0), 2:(-1000,0)}
     connect = define_topology(topology_list,N)
     L_all = define_length(coordinates)
     L = [L_all[pipe[0]][pipe[1]] for pipe in topology_list]
     roughness = [[0.26e-6 for _ in xrange(N)] for _ in xrange(N)]
-
     h_min = [30 for _ in xrange(N)]
 
-    water_distribution = KnownTopologyFluidNetworkDistribution(N, topology_list)
+    water_distribution = KTFND(N, topology_list)
 
     water_distribution.substitutions.update({
         "L": L,

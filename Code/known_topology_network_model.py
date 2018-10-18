@@ -2,8 +2,8 @@ from gpkit import Model, Variable, VectorVariable, SignomialsEnabled, units
 from gpkit.constraints.tight import Tight
 import numpy as np
 
-
-class KnownTopologyFluidNetworkDistribution(Model):
+# Known Topology Fluid Network Design
+class KTFND(Model):
     def setup(self, N, topology_list):
         number_of_pipes = len(topology_list)
         H = VectorVariable(N, "H", "m", "Head")
@@ -86,7 +86,7 @@ class KnownTopologyFluidNetworkDistribution(Model):
                 constraints += [f[pipe_index] <= 10]
 
             constraints += [totalCost >= np.sum(flow * (flowCost + pipeCost)) * (
-                    1 + slackCost * np.prod(slack_1) * np.prod(slack_2))]
+                    slackCost * np.prod(slack_1) * np.prod(slack_2))]
             constraints += [H[0] == 100 * units.m]
         return constraints
 
