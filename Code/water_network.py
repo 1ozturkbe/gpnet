@@ -35,7 +35,7 @@ if __name__ == '__main__':
     coordinates = {0: (0,1000), 1: (0,0), 2:(-1000,0)}
     connect = define_topology(topology_list,N)
     L_all = define_length(coordinates)
-    L = [L_all[pipe[0]][pipe[1]] for pipe in topology_list]
+    L = [L_all[pipe[0],pipe[1]] for pipe in topology_list]
     roughness = [[0.26e-6 for _ in xrange(N)] for _ in xrange(N)]
     h_min = [30 for _ in xrange(N)]
 

@@ -9,10 +9,10 @@ def define_topology(topology_list, N):
 
 
 def define_length(coordinates):
-    L = [[0 for _ in xrange(len(coordinates))] for _ in xrange(len(coordinates))]
+    L = {}
     for p1 in coordinates:
         for p2 in coordinates:
-            L[p1 - 1][p2 - 1] = np.sqrt((coordinates[p1][0] - coordinates[p2][0]) ** 2 +
+            L[p1,p2] = np.sqrt((coordinates[p1][0] - coordinates[p2][0]) ** 2 +
                                         (coordinates[p1][1] - coordinates[p2][1]) ** 2)
     return L
 
