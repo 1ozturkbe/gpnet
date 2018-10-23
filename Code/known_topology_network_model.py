@@ -12,8 +12,7 @@ class KTFND(Model):
         sink = VectorVariable(N, "Sk", "m^3/s", "Sink")
         rough = Variable("\\epsilon", "m", "Pipe Roughness")
         relRough = VectorVariable(number_of_pipes ,"\\epsilon/D", "-", "Relative Pipe Roughness")
-        flowCost = VectorVariable(number_of_pipes, "C_f", "-",
-                                  "Flow Cost")
+        # flowCost = VectorVariable(number_of_pipes, "C_f", "-", "Flow Cost")
         pipeCost = VectorVariable(number_of_pipes, "P_f", "-",
                                   "Pipe Cost")
         L = VectorVariable(number_of_pipes, "L", "m", "Pipe Length")
@@ -36,6 +35,8 @@ class KTFND(Model):
 
         constraints = []
 
+        source_dict = {}
+
         with SignomialsEnabled():
 
             for i in range(0, N):
@@ -56,20 +57,27 @@ class KTFND(Model):
                     # Tight([slack_2[i] <= 10]),
                     H[i] >= H_min[i]
                 ])
+                left_flow_p = H[i]
+                right_flow_p = 0
+                for pipe_index, pipe in enumerate(topology_list):
+                    if pipe[0] == i:
+                        H_part = Variable("H_{%s,%s}" % (i, pipe[1]), "m")
+                        if pipe[1] in source_dict:
+                            source_dict[pipe[1]].append(H_part)
+                        else:
+                            source_dict[pipe[1]] = [H_part]
+                        right_flow_p += H_part
+                        right_flow_p += H_loss[pipe_index]
+                if right_flow_p != 0:
+                    constraints.extend(Tight([left_flow_p >= right_flow_p]))
 
-                if i > 0:
-                    left_flow_p = 0
-                    right_flow_p = H[i]
-                    for pipe_index, pipe in enumerate(topology_list):
-                        if pipe[1] == i:
-                            left_flow_p += H[pipe[0]]
-                            right_flow_p += H_loss[pipe_index]
-                    constraints.extend([left_flow_p >= right_flow_p])
+            for key in source_dict.keys():
+                constraints.extend(Tight([H[key] <= sum(source_dict[key])]))
 
             for pipe_index in xrange(number_of_pipes):
                 constraints += [flow[pipe_index] <= maxFlow,
                                 pipeCost[pipe_index] == 1.1 * D[pipe_index] ** 1.5 * L[pipe_index]/units.m**2.5,
-                                flowCost[pipe_index] == V[pipe_index] * H_loss[pipe_index]/units.m**2*units.s,
+                                # flowCost[pipe_index] == V[pipe_index] * H_loss[pipe_index]/units.m**2*units.s,
                                 H_loss[pipe_index] == f[pipe_index] * L[pipe_index] * V[pipe_index] ** 2 / (2 * D[pipe_index] * g),
                                 V[pipe_index] == 4 * flow[pipe_index] / (np.pi * D[pipe_index] ** 2),
                                 relRough[pipe_index] == rough / D[pipe_index],
@@ -85,8 +93,8 @@ class KTFND(Model):
                                 relRough[pipe_index] ** 0.823896]
                 constraints += [f[pipe_index] <= 10]
 
-            constraints += [totalCost >= np.sum(flow * (flowCost + pipeCost)) * (
-                    slackCost * np.prod(slack_1) * np.prod(slack_2))]
+            constraints += [totalCost >= np.sum(flow * pipeCost) * ( slackCost * np.prod(slack_1) * np.prod(slack_2))]
+            # constraints += [totalCost >= np.sum(flow * (flowCost + pipeCost)) * (slackCost * np.prod(slack_1) * np.prod(slack_2))]
             constraints += [H[0] == 100 * units.m]
         return constraints
 
