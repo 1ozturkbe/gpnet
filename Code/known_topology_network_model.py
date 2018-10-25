@@ -57,14 +57,15 @@ class KTFND(Model):
                 ])
                 for pipe_index, pipe in enumerate(topology_list):
                     if pipe[0] == i:
-                         constraints.extend(Tight([H[i] >= H_loss[pipe_index] + H[pipe[1]]]))
+                        constraints.extend(Tight([H[i] >= H_loss[pipe_index] + H[pipe[1]]]))
             for key in source_dict.keys():
                 constraints.extend(Tight([H[key] <= sum(source_dict[key])]))
 
             for pipe_index in xrange(number_of_pipes):
                 constraints += [flow[pipe_index] <= maxFlow,
                                 pipeCost[pipe_index] == 1.1 * D[pipe_index] ** 1.5 * L[pipe_index] / units.m ** 2.5,
-                                H_loss[pipe_index] == f[pipe_index] * L[pipe_index] * V[pipe_index] ** 2 / (2 * D[pipe_index] * g),
+                                H_loss[pipe_index] == f[pipe_index] * L[pipe_index] * V[pipe_index] ** 2 / (
+                                            2 * D[pipe_index] * g),
                                 V[pipe_index] == 4 * flow[pipe_index] / (np.pi * D[pipe_index] ** 2),
                                 relRough[pipe_index] == rough / D[pipe_index],
                                 Re[pipe_index] == rho * V[pipe_index] * D[pipe_index] / mu,
