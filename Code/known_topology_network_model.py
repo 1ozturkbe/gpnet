@@ -2,6 +2,7 @@ from gpkit import Model, Variable, VectorVariable, SignomialsEnabled, units
 from gpkit.constraints.tight import Tight
 import numpy as np
 
+
 # Known Topology Fluid Network Design
 class KTFND(Model):
     def setup(self, N, topology_list):
@@ -12,7 +13,7 @@ class KTFND(Model):
         source = VectorVariable(N, "Sr", "m^3/s", "Source")
         sink = VectorVariable(N, "Sk", "m^3/s", "Sink")
         rough = Variable("\\epsilon", "m", "Pipe Roughness")
-        relRough = VectorVariable(number_of_pipes ,"\\epsilon/D", "-", "Relative Pipe Roughness")
+        relRough = VectorVariable(number_of_pipes, "\\epsilon/D", "-", "Relative Pipe Roughness")
         pipeCost = VectorVariable(number_of_pipes, "P_f", "-",
                                   "Pipe Cost")
         L = VectorVariable(number_of_pipes, "L", "m", "Pipe Length")
@@ -76,7 +77,7 @@ class KTFND(Model):
 
             for pipe_index in xrange(number_of_pipes):
                 constraints += [flow[pipe_index] <= maxFlow,
-                                pipeCost[pipe_index] == 1.1 * D[pipe_index] ** 1.5 * L[pipe_index]/units.m**2.5,
+                                pipeCost[pipe_index] == 1.1 * D[pipe_index] ** 1.5 * L[pipe_index] / units.m ** 2.5,
                                 H_loss[pipe_index] == f[pipe_index] * L[pipe_index] * V[pipe_index] ** 2 / (2 * D[pipe_index] * g),
                                 V[pipe_index] == 4 * flow[pipe_index] / (np.pi * D[pipe_index] ** 2),
                                 relRough[pipe_index] == rough / D[pipe_index],
@@ -90,9 +91,8 @@ class KTFND(Model):
                                 relRough[pipe_index] ** 1.73526 + 0.0734922 * Re[pipe_index] ** -1.13629 *
                                 relRough[pipe_index] ** 0.0574655 + 0.000214297 * Re[pipe_index] ** 0.00035242 *
                                 relRough[pipe_index] ** 0.823896]
-                constraints += [f[pipe_index] <= 10]
 
-            constraints += [totalCost >= np.sum(flow * pipeCost) * ( slackCost * np.prod(slack_1) * np.prod(slack_2))]
+            constraints += [totalCost >= np.sum(flow * pipeCost) * (slackCost * np.prod(slack_1) * np.prod(slack_2))]
             constraints += [H[0] == H_s]
         return constraints
 
