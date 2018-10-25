@@ -57,20 +57,9 @@ class KTFND(Model):
                     # Tight([slack_2[i] <= 10]),
                     H[i] >= H_min[i]
                 ])
-                left_flow_p = H[i]
-                right_flow_p = 0
                 for pipe_index, pipe in enumerate(topology_list):
                     if pipe[0] == i:
-                        H_part = Variable("H_{%s,%s}" % (i, pipe[1]), "m")
-                        if pipe[1] in source_dict:
-                            source_dict[pipe[1]].append(H_part)
-                        else:
-                            source_dict[pipe[1]] = [H_part]
-                        right_flow_p += H_part
-                        right_flow_p += H_loss[pipe_index]
-                if right_flow_p != 0:
-                    constraints.extend(Tight([left_flow_p >= right_flow_p]))
-
+                         constraints.extend(Tight([H[i] >= H_loss[pipe_index] + H[pipe[1]]]))
             for key in source_dict.keys():
                 constraints.extend(Tight([H[key] <= sum(source_dict[key])]))
 

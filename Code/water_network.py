@@ -25,13 +25,13 @@ if __name__ == '__main__':
                    25: (3077.46, 5137.63), 26: (3933.52, 5133.78), 27: (846.04, 2588.20), 28: (-552.41, 2588.20),
                    29: (-552.38, 4369.06), 30: (-549.36, 5137.63), 31: (536.45, 5137.63), 0: (5360.71, 1354.05)}
 
-    # Small problem
+    #Small problem
     # N = 5
     # sinks = [0, 0.89, 0.85, 0.130, 0.725]
     # sources = [sum(sinks), 0, 0, 0, 0]
     # topology_list = [[0, 1], [1, 2], [1, 3], [2, 4] ,[3,4]]
     # coordinates = {0: (0, 1000), 1: (0, 0), 2: (1000, 0), 3: (-1000, 0), 4: (1000, -1000)}
-    # Small tree problem
+    #Small tree problem
     # N = 3
     # sinks = [0,5,10]
     # sources = [sum(sinks), 0,0]
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     L_all = define_length(coordinates)
     L = [L_all[pipe[0], pipe[1]] for pipe in topology_list]
     roughness = [[0.26e-6 for _ in xrange(N)] for _ in xrange(N)]
-    h_min = [10 for _ in xrange(N)]
+    h_min = [30 for _ in xrange(N)]
 
     water_distribution = KTFND(N, topology_list)
 
@@ -62,4 +62,4 @@ if __name__ == '__main__':
 
     water_distribution.cost = water_distribution['C']
 
-    sol = water_distribution.localsolve(verbosity=2, reltol=1e-4, iteration_limit=1500)
+    sol = water_distribution.localsolve(verbosity=2, reltol=1e-2, iteration_limit=1500)
