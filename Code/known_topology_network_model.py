@@ -51,11 +51,8 @@ class KTFND(Model):
 
                 constraints.extend([
                     Tight([first_flow_p <= slack_1[i] * second_flow_p]),
-                    Tight([slack_1[i] >= 1]),
-                    # Tight([slack_1[i] <= 10]),
                     Tight([second_flow_p <= slack_2[i] * first_flow_p]),
-                    Tight([slack_2[i] >= 1]),
-                    # Tight([slack_2[i] <= 10]),
+                    Tight([slack_2[i] >= 1]), Tight([slack_1[i] >= 1]),
                     H[i] >= H_min[i]
                 ])
                 left_flow_p = H[i]

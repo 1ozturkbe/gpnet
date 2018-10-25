@@ -3,9 +3,10 @@ from known_topology_network_model import KTFND
 from generate_data import define_topology, define_length
 import numpy as np
 
+
 if __name__ == '__main__':
     # Somewhat large problem
-
+    
     N = 32
     sinks = [0, 890/3600.0, 850/3600.0, 130/3600.0, 725/3600.0, 1005/3600.0, 1350/3600.0, 550/3600.0, 525/3600.0,
              525/3600.0, 500/3600.0, 560/3600.0, 940/3600.0, 615/3600.0, 280/3600.0, 310/3600.0,
