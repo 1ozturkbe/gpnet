@@ -25,13 +25,15 @@ if __name__ == '__main__':
                    25: (3077.46, 5137.63), 26: (3933.52, 5133.78), 27: (846.04, 2588.20), 28: (-552.41, 2588.20),
                    29: (-552.38, 4369.06), 30: (-549.36, 5137.63), 31: (536.45, 5137.63), 0: (5360.71, 1354.05)}
 
-    #Small problem
-    # N = 5
-    # sinks = [0, 0.89, 0.85, 0.130, 0.725]
-    # sources = [sum(sinks), 0, 0, 0, 0]
-    # topology_list = [[0, 1], [1, 2], [1, 3], [2, 4] ,[3,4]]
-    # coordinates = {0: (0, 1000), 1: (0, 0), 2: (1000, 0), 3: (-1000, 0), 4: (1000, -1000)}
-    #Small tree problem
+    # Small problem
+    """
+    N = 5
+    sinks = [0, 0.89, 0.85, 0.130, 0.725]
+    sources = [sum(sinks), 0, 0, 0, 0]
+    topology_list = [[0, 1], [1, 2], [1, 3], [2, 4] ,[3,4]]
+    coordinates = {0: (0, 1000), 1: (0, 0), 2: (1000, 0), 3: (-1000, 0), 4: (1000, -1000)}
+    """
+    # Small tree problem
     # N = 3
     # sinks = [0,5,10]
     # sources = [sum(sinks), 0,0]
@@ -61,5 +63,7 @@ if __name__ == '__main__':
     })
 
     water_distribution.cost = water_distribution['C']
+    warm_start = {water_distribution["D"]: (1.016 - 0.3048)*np.random.rand(len(topology_list)) + 0.3048}
+    sol = water_distribution.localsolve(verbosity=2, reltol=1e-2, iteration_limit=1500, x0=warm_start)
 
     sol = water_distribution.localsolve(verbosity=2, reltol=1e-2, iteration_limit=1500)
