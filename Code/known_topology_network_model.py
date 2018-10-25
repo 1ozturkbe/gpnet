@@ -8,11 +8,11 @@ class KTFND(Model):
         number_of_pipes = len(topology_list)
         H = VectorVariable(N, "H", "m", "Head")
         H_min = VectorVariable(N, "H_{min}", "m", "Minimal Head Required")
+        H_s = Variable("H_{s}", "m", "Head Source")
         source = VectorVariable(N, "Sr", "m^3/s", "Source")
         sink = VectorVariable(N, "Sk", "m^3/s", "Sink")
         rough = Variable("\\epsilon", "m", "Pipe Roughness")
         relRough = VectorVariable(number_of_pipes ,"\\epsilon/D", "-", "Relative Pipe Roughness")
-        # flowCost = VectorVariable(number_of_pipes, "C_f", "-", "Flow Cost")
         pipeCost = VectorVariable(number_of_pipes, "P_f", "-",
                                   "Pipe Cost")
         L = VectorVariable(number_of_pipes, "L", "m", "Pipe Length")
@@ -77,7 +77,6 @@ class KTFND(Model):
             for pipe_index in xrange(number_of_pipes):
                 constraints += [flow[pipe_index] <= maxFlow,
                                 pipeCost[pipe_index] == 1.1 * D[pipe_index] ** 1.5 * L[pipe_index]/units.m**2.5,
-                                # flowCost[pipe_index] == V[pipe_index] * H_loss[pipe_index]/units.m**2*units.s,
                                 H_loss[pipe_index] == f[pipe_index] * L[pipe_index] * V[pipe_index] ** 2 / (2 * D[pipe_index] * g),
                                 V[pipe_index] == 4 * flow[pipe_index] / (np.pi * D[pipe_index] ** 2),
                                 relRough[pipe_index] == rough / D[pipe_index],
@@ -94,8 +93,7 @@ class KTFND(Model):
                 constraints += [f[pipe_index] <= 10]
 
             constraints += [totalCost >= np.sum(flow * pipeCost) * ( slackCost * np.prod(slack_1) * np.prod(slack_2))]
-            # constraints += [totalCost >= np.sum(flow * (flowCost + pipeCost)) * (slackCost * np.prod(slack_1) * np.prod(slack_2))]
-            constraints += [H[0] == 100 * units.m]
+            constraints += [H[0] == H_s]
         return constraints
 
 

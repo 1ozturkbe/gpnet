@@ -1,6 +1,7 @@
 from general_incompressible_network_model import IncompressibleFluidNetworkDistribution
 from known_topology_network_model import KTFND
 from generate_data import define_topology, define_length
+import numpy as np
 
 if __name__ == '__main__':
     # Somewhat large problem
@@ -53,16 +54,16 @@ if __name__ == '__main__':
         "Sk": sinks,
         "\\epsilon": 0.26e-6,
         "H_{min}": 30,
+        "H_{s}": 1000,
         "\\rho": 1000,
         "\\mu": 8.9e-4,
         "g": 9.81,
-        "D_{max}": 1.016,
+        "D_{max}": 10,  # 1.016,
         "D_{min}": 0.3048,
         "F_{max}": 1e20,
         "C_s": 1,
     })
 
-
     water_distribution.cost = water_distribution['C']
-    # warm_start = {water_distribution["D"]: (1.016 - 0.3048)*np.random.rand(len(topology_list)) + 0.3048}
-    sol = water_distribution.localsolve(verbosity=2, reltol=1e-4, iteration_limit=1500)  # , x0=warm_start)
+    warm_start = {water_distribution["D"]: (1.016 - 0.3048)*np.random.rand(len(topology_list)) + 0.3048}
+    sol = water_distribution.localsolve(verbosity=2, reltol=1e-2, iteration_limit=1500, x0=warm_start)
