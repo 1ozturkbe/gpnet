@@ -26,6 +26,7 @@ class KTFND(Model):
         f = VectorVariable(number_of_pipes, "f", "-", "Friction Factor")
         slack_1 = VectorVariable(N, "S_1", "-", "First Slack")
         slack_2 = VectorVariable(N, "S_2", "-", "Second Slack")
+        slack_h = VectorVariable(number_of_pipes, "S_p", "-", "Head Slack")
         slackCost = Variable("C_s", "-", "Slack Cost")
         totalCost = Variable("C", "m^3/s", "Total Cost")
         D_max = Variable("D_{max}", "m", "Maximum Diameter")
@@ -57,7 +58,11 @@ class KTFND(Model):
                 ])
                 for pipe_index, pipe in enumerate(topology_list):
                     if pipe[0] == i:
-                        constraints.extend(Tight([H[i] >= H_loss[pipe_index] + H[pipe[1]]]))
+                        constraints.extend([
+                            Tight([H[i] >= H_loss[pipe_index] + H[pipe[1]]]),
+                            Tight([H[i] <= slack_h[pipe_index]*(H_loss[pipe_index] + H[pipe[1]])]),
+                            Tight([slack_h[pipe_index] >= 1]),
+                        ])
             for key in source_dict.keys():
                 constraints.extend(Tight([H[key] <= sum(source_dict[key])]))
 
@@ -78,8 +83,9 @@ class KTFND(Model):
                                 relRough[pipe_index] ** 1.73526 + 0.0734922 * Re[pipe_index] ** -1.13629 *
                                 relRough[pipe_index] ** 0.0574655 + 0.000214297 * Re[pipe_index] ** 0.00035242 *
                                 relRough[pipe_index] ** 0.823896]
+                constraints += [f[pipe_index] <= 1]
 
-            constraints += [totalCost >= np.sum(flow * pipeCost) * (slackCost * np.prod(slack_1) * np.prod(slack_2))]
+            constraints += [totalCost >= np.sum(flow * pipeCost) * (slackCost * np.prod(slack_1) * np.prod(slack_2) * np.prod(slack_h))]
             constraints += [H[0] == H_s]
         return constraints
 
