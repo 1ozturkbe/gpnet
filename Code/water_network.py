@@ -3,9 +3,13 @@ from known_topology_network_model import KTFND
 from generate_data import define_topology, define_length
 from draw_network import draw_KT_network
 
-if __name__ == '__main__':
-    # Somewhat large problem
+from gpkit.constraints.tight import Tight
 
+if __name__ == '__main__':
+    # Changing Tightness requirement to within 0.1%
+    Tight.reltol = 10.**-3
+
+    # Somewhat large problem
     N = 32
     sinks = [0, 890/3600.0, 850/3600.0, 130/3600.0, 725/3600.0, 1005/3600.0, 1350/3600.0, 550/3600.0, 525/3600.0,
              525/3600.0, 500/3600.0, 560/3600.0, 940/3600.0, 615/3600.0, 280/3600.0, 310/3600.0,
@@ -26,21 +30,25 @@ if __name__ == '__main__':
                    25: (3077.46, 5137.63), 26: (3933.52, 5133.78), 27: (846.04, 2588.20), 28: (-552.41, 2588.20),
                    29: (-552.38, 4369.06), 30: (-549.36, 5137.63), 31: (536.45, 5137.63), 0: (5360.71, 1354.05)}
 
-    # Small problem
     """
+    Small problem
     N = 5
     sinks = [0, 0.89, 0.85, 0.130, 0.725]
     sources = [sum(sinks), 0, 0, 0, 0]
     topology_list = [[0, 1], [1, 2], [1, 3], [2, 4] ,[3,4]]
     coordinates = {0: (0, 1000), 1: (0, 0), 2: (1000, 0), 3: (-1000, 0), 4: (1000, -1000)}
     """
-    # Small tree problem
-    # N = 3
-    # sinks = [0,5,10]
-    # sources = [sum(sinks), 0,0]
-    # topology_list = [[0,1],[1,2]]
-    # coordinates = {0: (0,1000), 1: (0,0), 2:(-1000,0)}
+
+    """
+    Small tree problem
+    N = 3
+    sinks = [0,5,10]
+    sources = [sum(sinks), 0,0]
+    topology_list = [[0,1],[1,2]]
+    coordinates = {0: (0,1000), 1: (0,0), 2:(-1000,0)}
     connect = define_topology(topology_list, N)
+    """
+
     L_all = define_length(coordinates)
     L = [L_all[pipe[0], pipe[1]] for pipe in topology_list]
     roughness = [[0.26e-6 for _ in xrange(N)] for _ in xrange(N)]
