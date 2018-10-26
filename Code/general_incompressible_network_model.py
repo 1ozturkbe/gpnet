@@ -7,7 +7,6 @@ import numpy as np
 class IncompressibleFluidNetworkDistribution(Model):
     def setup(self, N):
         H = VectorVariable(N, "H", "m", "Head")
-        H_part = VectorVariable([N, N], "H_p", "m", "Partial Head")
         H_min = VectorVariable(N, "H_{min}", "m", "Minimal Head Required")
         H_s = Variable("H_{s}", "m", "Head Source")
         source = VectorVariable(N, "Sr", "m^3/s", "Source")
@@ -28,6 +27,7 @@ class IncompressibleFluidNetworkDistribution(Model):
         f = VectorVariable([N, N], "f", "-", "Friction Factor")
         slack_1 = VectorVariable(N, "S_1", "-", "First Slack")
         slack_2 = VectorVariable(N, "S_2", "-", "Second Slack")
+        slack_p = VectorVariable([N, N], "S_p", "-", "Head Slack")
         udr = Variable("Udr", "-", "Undirected Topology")
         slackCost = Variable("C_s", "-", "Slack Cost")
         totalCost = Variable("C", "-", "Total Cost")
@@ -50,18 +50,20 @@ class IncompressibleFluidNetworkDistribution(Model):
                 ])
                 # energy constraints
                 constraints.extend([
-                    H[i] >= sum(H_loss[i, :] * connect[i, :]) + sum(H_part[i, :] * connect[i, :]),
-                    H[i] <= sum(H_part[i, :]),
                     H[i] >= H_min[i],
                 ])
 
                 for j in range(0, N):
+                    constraints.extend([
+                        Tight([H[i] >= (H_loss[i, j] + H[j])*connect[i, j]]),
+                        # H[i] + connect[i, j]*H_s <= slack_p[i, j] * (H_loss[i, j] + H[j]) + H_s,
+                        Tight([slack_p[i, j] >= 1]),
+                    ])
                     # topology constraints
                     constraints += [
                         connect[i, j] <= 1,
                         connect[i, j] * connect[j, i] <= udr,
                         flow[i, j] <= connect[i, j] * maxFlow[i, j],
-                        H_part[i, j] <= connect[i, j]*H_s,
                         D[i, j] <= D_max,
                         D[i, j] >= D_min*(connect[i, j] + connect[j, i]),
                     ]
@@ -83,14 +85,14 @@ class IncompressibleFluidNetworkDistribution(Model):
                                     + 0.00301918 * Re[i, j] ** -0.0220498 * relRough[i, j] ** 1.73526 + 0.0734922 * Re[
                                         i, j] ** -1.13629 * relRough[i, j] ** 0.0574655
                                     + 0.000214297 * Re[i, j] ** 0.00035242 * relRough[i, j] ** 0.823896]
-                    constraints += [f[i, j] <= 10]
+                    constraints += [f[i, j] <= 1]
 
                 for j in range(i + 1, N):
                     constraints.extend([
                                         D[i, j] == D[j, i],
                                         relRough[i, j] == relRough[j, i],
                                         L[i, j] == L[j, i]])
-            constraints += [totalCost >= np.sum(flow * flowCost + conCost * connect) * (1 + slackCost * np.prod(slack_1) * np.prod(slack_2))]
+            constraints += [totalCost >= np.sum(flow * flowCost + conCost * connect)]  # * (1 + slackCost * np.prod(slack_1) * np.prod(slack_2) * np.prod(slack_p))]
             constraints += [H[0] == H_s]
         return constraints
 
@@ -172,11 +174,15 @@ if __name__ == '__main__':
         "D_{min}": 0.3048,
         "F_{max}": 1e20,
         "C_s": 1,
-        "Udr": 0,
+        "Udr": 1e-20,
         "C_c": 1,
         "x": connect,
+        "S_1": 1e5,
+        "S_2": 1e5,
+        "S_p": 1e5,
     })
 
     water_distribution.cost = water_distribution['C']
-    sol = water_distribution.localsolve(verbosity=2, reltol=1e-2, iteration_limit=1500)
+    warm_start = {water_distribution["F"]: [[0, 0.8], [0, 0]], water_distribution["H"]: [2000, 1990]}
+    sol = water_distribution.localsolve(verbosity=2, reltol=1e-2, iteration_limit=1500, x0=warm_start)
 

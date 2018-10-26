@@ -26,7 +26,7 @@ class KTFND(Model):
         f = VectorVariable(number_of_pipes, "f", "-", "Friction Factor")
         slack_1 = VectorVariable(N, "S_1", "-", "First Slack")
         slack_2 = VectorVariable(N, "S_2", "-", "Second Slack")
-        slack_h = VectorVariable(number_of_pipes, "S_p", "-", "Head Slack")
+        slack_h = VectorVariable(number_of_pipes, "S_h", "-", "Head Slack")
         slackCost = Variable("C_s", "-", "Slack Cost")
         totalCost = Variable("C", "m^3/s", "Total Cost")
         D_max = Variable("D_{max}", "m", "Maximum Diameter")
