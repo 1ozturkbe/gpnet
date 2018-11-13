@@ -75,6 +75,7 @@ if __name__ == '__main__':
     water_distribution.cost = water_distribution['C']
    # warm_start = {water_distribution["D"]: (1.016 - 0.3048)*np.random.rand(len(topology_list)) + 0.3048}
     #sol = water_distribution.localsolve(verbosity=2, reltol=1e-2, iteration_limit=1500, x0=warm_start)
-    sol = water_distribution.localsolve(verbosity=2, reltol=1e-2, iteration_limit=1500)
+    sol = water_distribution.localsolve(verbosity=2, reltol=1e-3, iteration_limit=1500)
+    print sol['cost']
 
     draw_KT_network(sol, coordinates, topology_list)
