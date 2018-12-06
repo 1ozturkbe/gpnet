@@ -37,8 +37,6 @@ class KTFND(Model):
 
         constraints = []
 
-        source_dict = {}
-
         with SignomialsEnabled():
 
             for i in range(0, N):
@@ -63,9 +61,6 @@ class KTFND(Model):
                             Tight([H[i] <= slack_h[pipe_index]*(H_loss[pipe_index] + H[pipe[1]])]),
                             Tight([slack_h[pipe_index] >= 1]),
                         ])
-            for key in source_dict.keys():
-                constraints.extend(Tight([H[key] <= sum(source_dict[key])]))
-
             for pipe_index in xrange(number_of_pipes):
                 constraints += [flow[pipe_index] <= maxFlow,
                                 pipeCost[pipe_index] == 1.1 * D[pipe_index] ** 1.5 * L[pipe_index] / units.m ** 2.5,

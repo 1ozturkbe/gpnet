@@ -3,9 +3,19 @@ from gpkit.constraints.tight import Tight
 from generate_data import define_length, define_topology
 import numpy as np
 
+def all_connect_without_self(N):
+    topology_list = []
+    for i in range(N):
+        for j in range(N):
+            if i !=j:
+                topology_list.append([i,j])
+    return topology_list
 
-class IncompressibleFluidNetworkDistribution(Model):
-    def setup(self, N):
+class GIFND(Model):
+    """
+    General incompressible fluid network design
+    """
+    def setup(self, N, topology_list = None):
         H = VectorVariable(N, "H", "m", "Head")
         H_min = VectorVariable(N, "H_{min}", "m", "Minimal Head Required")
         H_s = Variable("H_{s}", "m", "Head Source")
@@ -13,7 +23,7 @@ class IncompressibleFluidNetworkDistribution(Model):
         sink = VectorVariable(N, "Sk", "m^3/s", "Sink")
         rough = VectorVariable([N, N], "\\epsilon", "m", "Pipe Roughness")
         relRough = VectorVariable([N, N], "\\epsilon/D", "-", "Relative Pipe Roughness")
-        flowCost = VectorVariable([N, N], "C_f", "s/m^3",
+        pipeCost = VectorVariable([N, N], "C_f", "s/m^3",
                                   "Pipe Flow Cost")
         L = VectorVariable([N, N], "L", "m", "Pipe Length")
         D = VectorVariable([N, N], "D", "m", "Pipe Diameter")
@@ -27,18 +37,20 @@ class IncompressibleFluidNetworkDistribution(Model):
         f = VectorVariable([N, N], "f", "-", "Friction Factor")
         slack_1 = VectorVariable(N, "S_1", "-", "First Slack")
         slack_2 = VectorVariable(N, "S_2", "-", "Second Slack")
-        slack_p = VectorVariable([N, N], "S_p", "-", "Head Slack")
+        slack_h = VectorVariable([N, N], "S_h", "-", "Head Slack")
         udr = Variable("Udr", "-", "Undirected Topology")
         slackCost = Variable("C_s", "-", "Slack Cost")
         totalCost = Variable("C", "-", "Total Cost")
         D_max = Variable("D_{max}", "m", "Maximum Diameter")
         D_min = Variable("D_{min}", "m", "Minimum Diameter")
-        conCost = Variable("C_c", "-", "Connection Cost")
         rho = Variable("\\rho", "kg/m^3", "Density")
         mu = Variable("\\mu", "kg/m/s", "Viscosity")
         g = Variable("g", "m/s^2", "Gravity")
 
         constraints = []
+
+        if topology_list:
+            constraints += [connect[i[0],i[1]] == 1 for i in topology_list]
 
         with SignomialsEnabled():
             for i in range(0, N):
@@ -48,51 +60,55 @@ class IncompressibleFluidNetworkDistribution(Model):
                     Tight([source[i] + sum(flow[:, i]) <= slack_2[i] * (sink[i] + sum(flow[i, :]))]),
                     Tight([slack_2[i] >= 1]), Tight([slack_1[i] >= 1]),
                 ])
-                # energy constraints
+                # head constraints
                 constraints.extend([
                     H[i] >= H_min[i],
                 ])
 
                 for j in range(0, N):
-                    constraints.extend([
-                        Tight([H[i] >= (H_loss[i, j] + H[j])*connect[i, j]]),
-                        # H[i] + connect[i, j]*H_s <= slack_p[i, j] * (H_loss[i, j] + H[j]) + H_s,
-                        Tight([slack_p[i, j] >= 1]),
-                    ])
-                    # topology constraints
-                    constraints += [
+                    if i != j:
+                        constraints.extend([
+                            Tight([H[i]*slack_h[i, j] >= (H_loss[i, j] + H[j])*connect[i, j]]),
+                            Tight([H[i]*connect[i, j] <= slack_h[i,j]*(H_loss[i, j] + H[j])]),
+                            Tight([slack_h[i, j] >= 1]),
+                            ])
+                        # topology constraints
+                        constraints += [
                         connect[i, j] <= 1,
+                        connect[i,j] >= udr,
                         connect[i, j] * connect[j, i] <= udr,
-                        flow[i, j] <= connect[i, j] * maxFlow[i, j],
+                        flow[i, j] <= maxFlow[i, j],
                         D[i, j] <= D_max,
                         D[i, j] >= D_min*(connect[i, j] + connect[j, i]),
-                    ]
-                    # flow cost
-                    constraints += [
-                        flowCost[i, j] == 1.1 * D[i, j] ** 1.5 * L[i, j] * units.s / units.m ** 5.5,
-                    ]
-                    # Darcy-Weisbach Equations
-                    constraints += [
+                        # flow cost
+                        pipeCost[i, j] == 1.1 * D[i, j] ** 1.5 * L[i, j] * units.s / units.m ** 5.5,
+                        # Darcy-Weisbach Equations
                         H_loss[i, j] == f[i, j] * L[i, j] * V[i, j] ** 2 / (2 * D[i, j] * g),
                         V[i, j] == 4 * flow[i, j] / (np.pi * D[i, j] ** 2),
                         relRough[i, j] == rough[i, j] / D[i, j],
                         Re[i, j] == rho * V[i, j] * D[i, j] / mu,
-                    ]
-                    # friction factor posynomial approximation
-                    constraints += [f[i, j] ** 2.39794 >= 3.26853e-06 * Re[i, j] ** 0.0574443 * relRough[
-                        i, j] ** 0.364794 + 0.0001773 * Re[i, j] ** -0.529499 * relRough[
-                                        i, j] ** -0.0810121
-                                    + 0.00301918 * Re[i, j] ** -0.0220498 * relRough[i, j] ** 1.73526 + 0.0734922 * Re[
-                                        i, j] ** -1.13629 * relRough[i, j] ** 0.0574655
-                                    + 0.000214297 * Re[i, j] ** 0.00035242 * relRough[i, j] ** 0.823896]
-                    constraints += [f[i, j] <= 1]
+                        # friction factor posynomial approximation
+                        f[i, j] ** 2.39794 >= 3.26853e-06 * Re[i, j] ** 0.0574443 * relRough[i, j] ** 0.364794 +
+                                                0.0001773 * Re[i, j] ** -0.529499 * relRough[i, j] ** -0.0810121 +
+                                                0.00301918 * Re[i, j] ** -0.0220498 * relRough[i, j] ** 1.73526 +
+                                                0.0734922 * Re[i, j] ** -1.13629 * relRough[i, j] ** 0.0574655 +
+                                                0.000214297 * Re[i, j] ** 0.00035242 * relRough[i, j] ** 0.823896,
+                        f[i, j] <= 1,
+                        ]
 
+                    else:
+                        constraints.extend([slack_h[i, j] == 1,
+                                            connect[i, j] == udr,
+                                            D[i,j] == udr*D[i,j].units,
+                                            pipeCost[i,j] == udr*pipeCost[i,j].units,
+                                            H_loss[i,j] == udr*H_loss[i,j].units,
+                                            f[i,j] == udr,
+                                            ])
                 for j in range(i + 1, N):
                     constraints.extend([
                                         D[i, j] == D[j, i],
-                                        relRough[i, j] == relRough[j, i],
-                                        L[i, j] == L[j, i]])
-            constraints += [totalCost >= np.sum(flow * flowCost + conCost * connect)]  # * (1 + slackCost * np.prod(slack_1) * np.prod(slack_2) * np.prod(slack_p))]
+                    ])
+            constraints += [totalCost >= np.sum(flow * pipeCost) * (1 + slackCost * np.prod(slack_1) * np.prod(slack_2) * np.prod(slack_h))]
             constraints += [H[0] == H_s]
         return constraints
 
@@ -130,13 +146,12 @@ if __name__ == '__main__':
 
     # Small problem
     """
-    """
-    N = 5
-    sinks = [0, 0.89, 0.85, 0.130, 0.725]
-    sources = [sum(sinks), 0, 0, 0, 0]
-    topology_list = [[0, 1], [1, 2], [1, 3], [2, 4] ,[3,4]]
-    coordinates = {0: (0, 1000), 1: (0, 0), 2: (1000, 0), 3: (-1000, 0), 4: (1000, -1000)}
-    """
+    # N = 5
+    # sinks = [0, 0.89, 0.85, 0.130, 0.725]
+    # sources = [sum(sinks), 0, 0, 0, 0]
+    # topology_list = [[0, 1], [1, 2], [1, 3], [2, 4] ,[3,4]]
+    # coordinates = {0: (0, 1000), 1: (0, 0), 2: (1000, 0), 3: (-1000, 0), 4: (1000, -1000)}
+
     """
     # Small tree problem
     N = 3
@@ -145,12 +160,14 @@ if __name__ == '__main__':
     topology_list = [[0, 1], [1, 2]]
     coordinates = {0: (0, 1000), 1: (0, 0), 2: (-1000, 0)}
     """
+
     N = 2
+    coordinates = {0: (0, 1000), 1: (0, 0)}
     sinks = [0, 0.8]
     sources = [sum(sinks), 0]
-    topology_list = [[0, 1]]
-    coordinates = {0: (0, 1000), 1: (0, 0)}
-    connect = define_topology(topology_list, N)
+    topology_list = [[0,1]]
+
+    roughness = [[0.26e-6 for _ in xrange(N)] for _ in xrange(N)]
 
     L = [[0 for i in xrange(N)] for j in xrange(N)]
     for p1 in coordinates:
@@ -158,13 +175,13 @@ if __name__ == '__main__':
             L[p1][p2] = np.sqrt((coordinates[p1][0] - coordinates[p2][0]) ** 2 +
                                 (coordinates[p1][1] - coordinates[p2][1]) ** 2)
 
-    water_distribution = IncompressibleFluidNetworkDistribution(N)
+    m = GIFND(N, topology_list)
 
-    water_distribution.substitutions.update({
+    m.substitutions.update({
         "L": L,
         "Sr": sources,
         "Sk": sinks,
-        "\\epsilon": 0.26e-6,
+        "\\epsilon": roughness,
         "H_{min}": 30,
         "H_{s}": 2000,
         "\\rho": 1000,
@@ -175,14 +192,9 @@ if __name__ == '__main__':
         "F_{max}": 1e20,
         "C_s": 1,
         "Udr": 1e-20,
-        "C_c": 1,
-        "x": connect,
-        "S_1": 1e5,
-        "S_2": 1e5,
-        "S_p": 1e5,
     })
 
-    water_distribution.cost = water_distribution['C']
-    warm_start = {water_distribution["F"]: [[0, 0.8], [0, 0]], water_distribution["H"]: [2000, 1990]}
-    sol = water_distribution.localsolve(verbosity=2, reltol=1e-2, iteration_limit=1500, x0=warm_start)
+    m.cost = m['C']
+    # warm_start = {m["F"]: [[0, 0.8], [0, 0]], m["H"]: [2000, 1990]}
+    sol = m.localsolve(verbosity=2, reltol=1e-2, iteration_limit=1500) #x0=warm_start)
 

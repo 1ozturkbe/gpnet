@@ -65,7 +65,6 @@ class HWKTWND(Model):
 
             for key in source_dict.keys():
                 constraints.extend(Tight([H[key] <= sum(source_dict[key])]))
-
             for pipe_index in xrange(number_of_pipes):
                 constraints += [flow[pipe_index] <= maxFlow,
                                 pipeCost[pipe_index] == 1.1 * D[pipe_index] ** 1.5 * L[pipe_index] / units.m ** 2.5,
@@ -97,9 +96,9 @@ if __name__ == '__main__':
     L = [100, 1350, 900, 1150, 1450, 450, 850, 850, 800, 950, 1200, 3500, 800, 500, 550, 2730, 1750, 800, 400, 2200,
          1500, 500, 2650, 1230, 1300, 850, 300, 750, 1500, 2000, 1600, 150, 860, 950]
 
-    water_distribution = HWKTWND(N, topology_list)
+    m = HWKTWND(N, topology_list)
 
-    water_distribution.substitutions.update({
+    m.substitutions.update({
         "L": L,
         "Sr": sources,
         "Sk": sinks,
@@ -111,5 +110,5 @@ if __name__ == '__main__':
         "C_s": 1,
     })
 
-    water_distribution.cost = water_distribution['C']
-    sol = water_distribution.localsolve(verbosity=4, reltol=1e-4, iteration_limit=1500)
+    m.cost = m['C']
+    sol = m.localsolve(verbosity=4, reltol=1e-4, iteration_limit=1500)
