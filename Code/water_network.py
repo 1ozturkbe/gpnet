@@ -1,9 +1,11 @@
-from general_incompressible_network_model import IncompressibleFluidNetworkDistribution
+from general_incompressible_network_model import GIFND
 from known_topology_network_model import KTFND
 from generate_data import define_topology, define_length
 from draw_network import draw_KT_network
 
 from gpkit.constraints.tight import Tight
+
+import numpy as np
 
 if __name__ == '__main__':
     # Changing Tightness requirement to within 0.1%
@@ -11,10 +13,10 @@ if __name__ == '__main__':
 
     # Somewhat large problem
     N = 32
-    sinks = [0, 890/3600.0, 850/3600.0, 130/3600.0, 725/3600.0, 1005/3600.0, 1350/3600.0, 550/3600.0, 525/3600.0,
-             525/3600.0, 500/3600.0, 560/3600.0, 940/3600.0, 615/3600.0, 280/3600.0, 310/3600.0,
-             865/3600.0, 1345/3600.0, 60/3600.0, 1275/3600.0, 930/3600.0, 485/3600.0, 1045/3600.0, 820/3600.0, 170/3600.0,
-             900/3600.0, 370/3600.0, 290/3600.0, 360/3600.0, 360/3600.0, 105/3600.0, 805/3600.0]
+    sinks = np.array([0, 890, 850, 130, 725, 1005, 1350, 550, 525,
+             525, 500, 560, 940, 615, 280, 310,
+             865, 1345, 60, 1275, 930, 485, 1045, 820, 170,
+             900, 370, 290, 360, 360, 105, 805])/3600.0
     sources = [0 for i in xrange(N)]
     sources[0] = sum(sinks)
     topology_list = [[0, 1], [1, 2], [2, 3], [2, 19], [2, 18], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10],
@@ -54,9 +56,9 @@ if __name__ == '__main__':
     roughness = [[0.26e-6 for _ in xrange(N)] for _ in xrange(N)]
     h_min = [30 for _ in xrange(N)]
 
-    water_distribution = KTFND(N, topology_list)
+    m = KTFND(N, topology_list)
 
-    water_distribution.substitutions.update({
+    m.substitutions.update({
         "L": L,
         "Sr": sources,
         "Sk": sinks,
@@ -72,10 +74,10 @@ if __name__ == '__main__':
         "C_s": 1,
     })
 
-    water_distribution.cost = water_distribution['C']
-   # warm_start = {water_distribution["D"]: (1.016 - 0.3048)*np.random.rand(len(topology_list)) + 0.3048}
-    #sol = water_distribution.localsolve(verbosity=2, reltol=1e-2, iteration_limit=1500, x0=warm_start)
-    sol = water_distribution.localsolve(verbosity=2, reltol=1e-3, iteration_limit=1500)
+    m.cost = m['C']
+   # warm_start = {m["D"]: (1.016 - 0.3048)*np.random.rand(len(topology_list)) + 0.3048}
+    #sol = m.localsolve(verbosity=2, reltol=1e-2, iteration_limit=1500, x0=warm_start)
+    sol = m.localsolve(verbosity=2, reltol=1e-3, iteration_limit=1500)
     print sol['cost']
 
     draw_KT_network(sol, coordinates, topology_list)
