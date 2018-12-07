@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import matplotlib.path as path
 import numpy as np
 
+from gpkit.small_scripts import mag
+
 
 def forceAspect(ax, aspect=1):
     im = ax.get_images()
@@ -15,11 +17,16 @@ def draw_KT_network(sol, coordinates, topology_list):
     xmin, ymin, xmax, ymax = 1e10 * np.array([1, 1, -1, -1])
     # Arrow parameters for flow plotting
     hl = 400  # Arrow head length
-    hwf = hl * sol('F').magnitude / max(sol('F').magnitude)  # Arrow width for flow solution
-    hwd = hl * sol('D').magnitude / max(sol('D').magnitude)  # Arrow width for diameter solution
-    pwSr = 15*sol('Sr').magnitude / max(sol('Sr').magnitude)  # Point width for sources
-    pwSk = 15*sol('Sk').magnitude / max(sol('Sk').magnitude)  # Point width for sinks
-
+    try:
+        hwf = hl * mag(sol('F')) / max(mag(sol('F')))  # Arrow width for flow solution
+        hwd = hl * mag(sol('D')) / max(mag(sol('D')))  # Arrow width for diameter solution
+        pwSr = 15*mag(sol('Sr')) / max(mag(sol('Sr')))  # Point width for sources
+        pwSk = 15*mag(sol('Sk')) / max(mag(sol('Sk')))  # Point width for sinks
+    except:
+        hwf = hl * mag(sol['F']) / max(mag(sol['F']))  # Arrow width for flow solution
+        hwd = hl * mag(sol['D']) / max(mag(sol['D']))  # Arrow width for diameter solution
+        pwSr = 15*mag(sol['Sr']) / max(mag(sol['Sr']))  # Point width for sources
+        pwSk = 15*mag(sol['Sk']) / max(mag(sol['Sk']))  # Point width for sinks
     fig = plt.figure()
     ax1 = fig.add_subplot(1, 2, 1, aspect=1)
     ax2 = fig.add_subplot(1, 2, 2, aspect=1)
@@ -50,5 +57,23 @@ def draw_KT_network(sol, coordinates, topology_list):
     plt.show()
 
 
+def draw_network(sol, coordinates):
+    # Draws a general flow network
+    N = len(coordinates)
+    topology_list = []
+    n_edges = sum(sol('x') > 1e-20)
+    prunedsol = {'F':[], 'D':[], 'Sr':[], 'Sk': []}
+    for i in range(N):
+        for j in range(N):
+            print sol('x')[i,j]
+            if sol('x')[i,j] >= 0:
+                topology_list.append([i,j])
+                prunedsol['F'] += mag(sol('F')[i,j])
+                prunedsol['D'] += mag(sol('D')[i,j])
+    prunedsol['Sr'] = sol('Sr')
+    prunedsol['Sk'] = sol('Sk')
+    print prunedsol
+    draw_KT_network(prunedsol, coordinates, topology_list)
+
 if __name__ == '__main__':
-    draw_KT_network(sol, coordinates, topology_list)
+    pass
