@@ -31,10 +31,10 @@ def draw_KT_network(sol, coordinates, topology_list):
     ax1 = fig.add_subplot(1, 2, 1, aspect=1)
     ax2 = fig.add_subplot(1, 2, 2, aspect=1)
     for i in range(len(topology_list)):
-        xmin = np.min([xmin, orig[i][0]])
-        xmax = np.max([xmax, orig[i][0]])
-        ymin = np.min([ymin, orig[i][1]])
-        ymax = np.max([ymax, orig[i][1]])
+        xmin = np.min([xmin, orig[i][0], dest[i][0]])
+        xmax = np.max([xmax, orig[i][0], dest[i][0]])
+        ymin = np.min([ymin, orig[i][1], dest[i][1]])
+        ymax = np.max([ymax, orig[i][1], dest[i][1]])
         # Plotting flow arrows
         ax1.arrow(orig[i][0], orig[i][1], dest[i][0] - orig[i][0], dest[i][1] - orig[i][1], label=i, color='b',
                   width=1. / 3. * hwf[i], head_width=hwf[i], head_length=hl,
@@ -44,10 +44,11 @@ def draw_KT_network(sol, coordinates, topology_list):
                   width=1. / 3. * hwd[i], head_width=hwd[i], head_length=hl,
                   length_includes_head=True)
 
-    for i in range(len(coordinates)):
+    for i in coordinates.iterkeys():
         # Plotting sources and sinks
         ax1.plot(coordinates[i][0], coordinates[i][1], 'o', color='b', mfc='none', markersize=pwSr[i])
         ax1.plot(coordinates[i][0], coordinates[i][1], 'o', color='r', mfc='none', markersize=pwSk[i])
+        ax1.annotate(i,(coordinates[i][0], coordinates[i][1]))
     ax1.set_xlim([xmin - hl, xmax + hl])
     ax2.set_xlim([xmin - hl, xmax + hl])
     ax1.set_ylim([ymin - hl, ymax + hl])
@@ -58,22 +59,24 @@ def draw_KT_network(sol, coordinates, topology_list):
 
 
 def draw_network(sol, coordinates):
-    # Draws a general flow network
+    # Draws a general flow network (GI)
     N = len(coordinates)
     topology_list = []
-    n_edges = sum(sol('x') > 1e-20)
+    n_edges = sum(sum(sol('x') > 1e-10))
     prunedsol = {'F':[], 'D':[], 'Sr':[], 'Sk': []}
     for i in range(N):
         for j in range(N):
-            print sol('x')[i,j]
-            if sol('x')[i,j] >= 0:
+            if sol('x')[i][j] >= 1e-10:
                 topology_list.append([i,j])
-                prunedsol['F'] += mag(sol('F')[i,j])
-                prunedsol['D'] += mag(sol('D')[i,j])
+                prunedsol['F'] = prunedsol['F'] + [mag(sol('F')[i][j])]
+                prunedsol['D'] = prunedsol['D'] + [mag(sol('D')[i][j])]
     prunedsol['Sr'] = sol('Sr')
     prunedsol['Sk'] = sol('Sk')
     print prunedsol
     draw_KT_network(prunedsol, coordinates, topology_list)
+
+def draw_network_apsp(apsp_dict, d_dict, coordinates):
+    return None
 
 if __name__ == '__main__':
     pass
