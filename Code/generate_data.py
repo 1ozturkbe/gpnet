@@ -7,6 +7,12 @@ def define_topology(topology_list, N):
         topology[connection[0]][connection[1]] = 1
     return topology
 
+def return_undirected(topology_list):
+    for i in topology_list:
+        if [i[1], i[0]] not in topology_list:
+            topology_list.append([i[1], i[0]])
+    return sorted(topology_list)
+
 
 def define_length(coordinates):
     L = {}
