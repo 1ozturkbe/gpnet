@@ -5,6 +5,27 @@ from scipy.spatial import ConvexHull
 
 from generate_data import return_undirected, define_length
 
+class Node(object):
+    "Generic tree node."
+    def __init__(self, id, parents=None, children=None):
+        self.id = id
+        self.parents = []
+        self.children = []
+        if parents is not None:
+            for parent in parents:
+                self.add_parent(parent)
+        if children is not None:
+            for child in children:
+                self.add_child(child)
+    def __repr__(self):
+        return str(self.id)
+    def add_child(self, node):
+        assert isinstance(node, Node)
+        self.children.append(node)
+    def add_parent(self, node):
+        assert isinstance(node, Node)
+        self.parents.append(node)
+
 def find_convex_hull(coordinate_dict):
     """
     Find the convex hull of a set of points in Euclidian space,
@@ -61,7 +82,33 @@ def find_apsp(L_all, topology_list, coordinate_dict):
                         apsp_dict[i,j] = newpath
     return apsp_dict, d_dict
 
+def generate_nodes(topology_list, coordinates):
+    nodes = [Node(i) for i in coordinates.keys()]
+    for i in coordinates.keys():
+        for j in topology_list:
+            if j[0] == i:
+                nodes[i].add_parent(nodes[j[1]])
+            if j[1] == i:
+                nodes[i].add_child(nodes[j[0]])
+    return nodes
 
+def dfs_tree(nodes):
+    unexplored = [node.id for node in nodes]
+    pathnodes = [nodes[0]]
+    stack = pathnodes
+    while unexplored != []:
+        i = stack.pop()
+        while i.id not in unexplored:
+            i = stack.pop()
+        unexplored.remove(i.id)
+        pathnodes = pathnodes + [i]
+        for j in sorted(i.children):
+            if j.id in unexplored:
+                stack = stack + [Node(j.id, [i], j.children)]
+    return pathnodes
+
+def cycles(topology_list, coordinates):
+    return None
 
 if __name__ == '__main__':
       # Somewhat large problem
@@ -78,6 +125,11 @@ if __name__ == '__main__':
                    21: (3587.87, 901.29), 22: (1978.55, 2588.30), 23: (1975.58, 4084.35), 24: (1980.46, 5137.63),
                    25: (3077.46, 5137.63), 26: (3933.52, 5133.78), 27: (846.04, 2588.20), 28: (-552.41, 2588.20),
                    29: (-552.38, 4369.06), 30: (-549.36, 5137.63), 31: (536.45, 5137.63), 0: (5360.71, 1354.05)}
+
     L_all = define_length(coordinates)
-    # topology_list = return_undirected(topology_list)
+    topology_list = return_undirected(topology_list)
     apsp_dict, d_dict = find_apsp(L_all, topology_list, coordinates)
+
+    nodes = generate_nodes(topology_list, coordinates)
+
+    pathnodes = dfs_tree(nodes)

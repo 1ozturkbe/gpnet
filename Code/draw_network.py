@@ -4,12 +4,10 @@ import numpy as np
 
 from gpkit.small_scripts import mag
 
-
 def forceAspect(ax, aspect=1):
     im = ax.get_images()
     extent = im[0].get_extent()
     ax.set_aspect(abs((extent[1] - extent[0]) / (extent[3] - extent[2])) / aspect)
-
 
 def draw_KT_network(sol, coordinates, topology_list):
     coordinate_list = [[coordinates[i[0]], coordinates[i[1]]] for i in topology_list]
