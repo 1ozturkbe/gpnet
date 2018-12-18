@@ -126,9 +126,15 @@ def find_single_path_edges(treepath):
         current = treepath[i]
         visitedlist.append(current.id)
         for j in current.children:
+            if previous.id == j.id:
+                current.children.remove(j)
             if j.id in visitedlist and edge == []:
                 edge = [j]
-            elif j.id in visitedlist:
+                current.children.remove(j)
+        if len(current.children) > 1:
+            forks.append(current)
+        for j in current.children:
+            if j.id in visitedlist:
                 current.children.remove(j)
         edge.append(current)
         previous = current
@@ -139,7 +145,7 @@ def find_single_path_edges(treepath):
             edges.append(edge)
             edge = []
         else:
-            forks.append(current)
+            # forks.append(current)
             edges.append(edge)
             edge = [previous]
     return edges, forks
@@ -167,3 +173,5 @@ if __name__ == '__main__':
     nodes = nodes_from_topology_list(topology_list, coordinates)
 
     pathnodes = dfs_tree(nodes)
+
+    edges, forks = find_single_path_edges(pathnodes)
