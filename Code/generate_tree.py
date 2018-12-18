@@ -123,31 +123,39 @@ def find_single_path_edges(treepath):
     visitedlist = []
     forks = []
     for i in range(len(treepath)):
+        # Initialize next node
         current = treepath[i]
         visitedlist.append(current.id)
+        # Remove backward looking children
         for j in current.children:
             if previous.id == j.id:
                 current.children.remove(j)
-            if j.id in visitedlist and edge == []:
-                edge = [j]
-                current.children.remove(j)
+        # If starting new edge, find its parent
+        if edge == []:
+            for j in current.parents:
+                if j.id in visitedlist:
+                    edge = [j]
+                    break
+        # Add to forks
         if len(current.children) > 1:
             forks.append(current)
         for j in current.children:
             if j.id in visitedlist:
-                current.children.remove(j)
+                current.children.remove(j) # Remove visited children
         edge.append(current)
         previous = current
         if len(current.children) == 1:
-            print str(current) +' has single child'
-        elif len(current.children) == 0:
-            print str(current) +' has no children'
+            continue # continue on a directly connected edge
+        elif len(current.children) == 0: # if in a terminal node
+            for fork in forks:
+                if previous.id in [u.id for u in fork.children]:
+                    edge.append(fork) # check if we have looped back to a fork,
+                    break             # or if it is a leaf node
             edges.append(edge)
             edge = []
-        else:
-            # forks.append(current)
-            edges.append(edge)
-            edge = [previous]
+        else: # if there are many children
+            edges.append(edge) # register edge
+            edge = [previous] # create new edge
     return edges, forks
 
 if __name__ == '__main__':
