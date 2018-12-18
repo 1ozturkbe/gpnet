@@ -82,7 +82,7 @@ def find_apsp(L_all, topology_list, coordinate_dict):
                         apsp_dict[i,j] = newpath
     return apsp_dict, d_dict
 
-def generate_nodes(topology_list, coordinates):
+def nodes_from_topology_list(topology_list, coordinates):
     nodes = [Node(i) for i in coordinates.keys()]
     for i in coordinates.keys():
         for j in topology_list:
@@ -107,8 +107,36 @@ def dfs_tree(nodes):
                 stack = stack + [Node(j.id, [i], j.children)]
     return pathnodes
 
-def cycles(topology_list, coordinates):
-    return None
+def topology_list_from_nodes(nodes):
+    topology_list = []
+    for i in nodes:
+        for j in i.parents:
+            topology_list.append([j.id, i.id])
+        for j in i.children:
+            topology_list.append([i.id, j.id])
+    return topology_list
+
+def find_single_path_edges(treepath):
+    edges = []
+    edge = []
+    previous = treepath[0]
+    for i in range(len(treepath)):
+        current = treepath[i]
+        for j in current.children:
+            if j.id == previous.id:
+                current.children.remove(j)
+        edge.append(current)
+        previous = current
+        if len(current.children) == 1:
+            print str(current) +' has single child'
+        elif len(current.children) == 0:
+            print str(current) +'has no children'
+            edges.append(edge)
+            edge = []
+        else:
+            edges.append(edge)
+            edge = [previous]
+    return edges
 
 if __name__ == '__main__':
       # Somewhat large problem
@@ -130,6 +158,6 @@ if __name__ == '__main__':
     topology_list = return_undirected(topology_list)
     apsp_dict, d_dict = find_apsp(L_all, topology_list, coordinates)
 
-    nodes = generate_nodes(topology_list, coordinates)
+    nodes = nodes_from_topology_list(topology_list, coordinates)
 
     pathnodes = dfs_tree(nodes)
