@@ -117,6 +117,12 @@ def topology_list_from_nodes(nodes):
     return topology_list
 
 def find_single_path_edges(treepath):
+    """
+    Finds the singly-connected set of edges from a dfs tree
+    Note: Doesn't find all edges!
+    :param treepath: the result of dfs_tree on a set of nodes
+    :return: the different sets of singly connected nodes
+    """
     edges = []
     edge = []
     previous = treepath[0]
@@ -137,25 +143,23 @@ def find_single_path_edges(treepath):
                     edge = [j]
                     break
         # Add to forks
-        if len(current.children) > 1:
-            forks.append(current)
-        for j in current.children:
-            if j.id in visitedlist:
-                current.children.remove(j) # Remove visited children
+        if len(current.children) > 2 or (len(current.children) > 1 and i > 0):
+                forks.append(current)
+        # Update edge
         edge.append(current)
         previous = current
         if len(current.children) == 1:
-            continue # continue on a directly connected edge
+            continue # on a directly connected edge
         elif len(current.children) == 0: # if in a terminal node
             for fork in forks:
-                if previous.id in [u.id for u in fork.children]:
+                if current.id in [u.id for u in fork.children]:
                     edge.append(fork) # check if we have looped back to a fork,
                     break             # or if it is a leaf node
             edges.append(edge)
             edge = []
         else: # if there are many children
             edges.append(edge) # register edge
-            edge = [previous] # create new edge
+            edge = [] # create new edge
     return edges, forks
 
 if __name__ == '__main__':
