@@ -21,13 +21,13 @@ def draw_KT_network(sol, coordinates, topology_list):
     try:
         hwf = hl * mag(sol('F')) / max(mag(sol('F')))  # Arrow width for flow solution
         hwd = hl * mag(sol('D')) / max(mag(sol('D')))  # Arrow width for diameter solution
-        pwSr = 15*mag(sol('Sr')) / max(mag(sol('Sr')))  # Point width for sources
-        pwSk = 15*mag(sol('Sk')) / max(mag(sol('Sk')))  # Point width for sinks
+        pwSr = 15*mag(sol('\dot{V}_+')) / max(mag(sol('\dot{V}_+')))  # Point width for sources
+        pwSk = 15*mag(sol('\dot{V}_-')) / max(mag(sol('\dot{V}_-')))  # Point width for sinks
     except:
         hwf = hl * mag(sol['F']) / max(mag(sol['F']))  # Arrow width for flow solution
         hwd = hl * mag(sol['D']) / max(mag(sol['D']))  # Arrow width for diameter solution
-        pwSr = 15*mag(sol['Sr']) / max(mag(sol['Sr']))  # Point width for sources
-        pwSk = 15*mag(sol['Sk']) / max(mag(sol['Sk']))  # Point width for sinks
+        pwSr = 15*mag(sol['\dot{V}_+']) / max(mag(sol['\dot{V}_+']))  # Point width for sources
+        pwSk = 15*mag(sol['\dot{V}_-']) / max(mag(sol['\dot{V}_-']))  # Point width for sinks
     fig = plt.figure()
     ax1 = fig.add_subplot(1, 2, 1, aspect=1)
     ax2 = fig.add_subplot(1, 2, 2, aspect=1)
@@ -64,15 +64,15 @@ def draw_network(sol, coordinates):
     N = len(coordinates)
     topology_list = []
     n_edges = sum(sum(sol('x') > 1e-10))
-    prunedsol = {'F':[], 'D':[], 'Sr':[], 'Sk': []}
+    prunedsol = {'F':[], 'D':[], '\dot{V}_+':[], '\dot{V}_-': []}
     for i in range(N):
         for j in range(N):
             if sol('x')[i][j] >= 1e-10:
                 topology_list.append([i,j])
                 prunedsol['F'] = prunedsol['F'] + [mag(sol('F')[i][j])]
                 prunedsol['D'] = prunedsol['D'] + [mag(sol('D')[i][j])]
-    prunedsol['Sr'] = sol('Sr')
-    prunedsol['Sk'] = sol('Sk')
+    prunedsol['\dot{V}_+'] = sol('\dot{V}_+')
+    prunedsol['\dot{V}_-'] = sol('\dot{V}_-')
     print prunedsol
     draw_KT_network(prunedsol, coordinates, topology_list)
 

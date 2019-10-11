@@ -1,10 +1,7 @@
-from general_incompressible_network_model import GIFND
-from known_topology_network_model import KTFND
+from gpkit.constraints.tight import Tight
+from known_topology_network_model import DWKTFND, HWKTWND
 from generate_data import define_topology, define_length
 from draw_network import draw_KT_network
-
-from gpkit.constraints.tight import Tight
-
 import numpy as np
 
 if __name__ == '__main__':
@@ -56,28 +53,27 @@ if __name__ == '__main__':
     roughness = [[0.26e-6 for _ in xrange(N)] for _ in xrange(N)]
     h_min = [30 for _ in xrange(N)]
 
-    m = KTFND(N, topology_list)
+    m = DWKTFND(N, topology_list)
 
     m.substitutions.update({
         "L": L,
-        "Sr": sources,
-        "Sk": sinks,
+        "\dot{V}_+": sources,
+        "\dot{V}_-": sinks,
         "\\epsilon": 0.26e-6,
         "H_{min}": h_min,
-        "H_{s}": 100,
+        m["H"][0]: 100,
         "\\rho": 1000,
         "\\mu": 8.9e-4,
         "g": 9.81,
         "D_{max}": 1.016,
         "D_{min}": 0.3048,
         "F_{max}": 1e20,
-        "C_s": 1,
     })
 
     m.cost = m['C']
    # warm_start = {m["D"]: (1.016 - 0.3048)*np.random.rand(len(topology_list)) + 0.3048}
     #sol = m.localsolve(verbosity=2, reltol=1e-2, iteration_limit=1500, x0=warm_start)
-    sol = m.localsolve(verbosity=2, reltol=1e-3, iteration_limit=1500)
+    sol = m.localsolve(verbosity=2, reltol=1e-2, iteration_limit=100)
     print sol['cost']
 
     draw_KT_network(sol, coordinates, topology_list)
