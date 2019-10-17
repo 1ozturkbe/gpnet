@@ -1,8 +1,9 @@
+from builtins import range
 import numpy as np
 
 
 def define_topology(topology_list, N):
-    topology = [[0 for _ in xrange(N)] for _ in xrange(N)]
+    topology = [[0 for _ in range(N)] for _ in range(N)]
     for connection in topology_list:
         topology[connection[0]][connection[1]] = 1
     return topology

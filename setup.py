@@ -11,5 +11,7 @@ setup(name='gpnet',
       packages=['gpnet'],
       install_requires=[
           'gpkit',
+          'gpfit',
+          'plotly',
           'robust'
       ])

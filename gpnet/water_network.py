@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
 from gpkit.constraints.tight import Tight
 from known_topology_network_model import DWKTFND, HWKTWND
 from generate_data import define_topology, define_length
@@ -16,7 +19,7 @@ if __name__ == '__main__':
              525, 500, 560, 940, 615, 280, 310,
              865, 1345, 60, 1275, 930, 485, 1045, 820, 170,
              900, 370, 290, 360, 360, 105, 805])/3600.0
-    sources = [0 for i in xrange(N)]
+    sources = [0 for i in range(N)]
     sources[0] = sum(sinks)
     topology_list = [[0, 1], [1, 2], [2, 3], [2, 19], [2, 18], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10],
                      [10, 11], [11, 12], [9, 13], [13, 14], [14, 15], [16, 15], [17, 16], [18, 17], [15, 26], [26, 25],
@@ -52,8 +55,8 @@ if __name__ == '__main__':
 
     L_all = define_length(coordinates)
     L = [L_all[pipe[0], pipe[1]] for pipe in topology_list]
-    roughness = [[0.26e-6 for _ in xrange(N)] for _ in xrange(N)]
-    h_min = [30 for _ in xrange(N)]
+    roughness = [[0.26e-6 for _ in range(N)] for _ in range(N)]
+    h_min = [30 for _ in range(N)]
 
     m = DWKTFND(N, topology_list)
 
@@ -76,7 +79,7 @@ if __name__ == '__main__':
    # warm_start = {m["D"]: (1.016 - 0.3048)*np.random.rand(len(topology_list)) + 0.3048}
     #sol = m.localsolve(verbosity=2, reltol=1e-2, iteration_limit=1500, x0=warm_start)
     sol = m.localsolve(verbosity=2, reltol=1e-2, iteration_limit=100)
-    print sol['cost']
+    print(sol['cost'])
 
     draw_KT_network(sol, coordinates, topology_list)
 

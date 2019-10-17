@@ -1,10 +1,15 @@
+from __future__ import print_function
+from __future__ import division
+from builtins import zip
+from builtins import map
+from builtins import range
 import matplotlib.pyplot as plt
 import matplotlib.path as path
 import numpy as np
 
 from gpkit.small_scripts import mag
 
-import plotly.plotly as py
+import chart_studio.plotly as py
 import plotly.graph_objs as go
 
 def forceAspect(ax, aspect=1):
@@ -45,7 +50,7 @@ def draw_KT_network(sol, coordinates, topology_list):
                   width=1. / 3. * hwd[i], head_width=hwd[i], head_length=hl,
                   length_includes_head=True)
 
-    for i in coordinates.iterkeys():
+    for i in coordinates.keys():
         # Plotting sources and sinks
         ax1.plot(coordinates[i][0], coordinates[i][1], 'o', color='b', mfc='none', markersize=pwSr[i])
         ax1.plot(coordinates[i][0], coordinates[i][1], 'o', color='r', mfc='none', markersize=pwSk[i])
@@ -73,12 +78,12 @@ def draw_network(sol, coordinates):
                 prunedsol['D'] = prunedsol['D'] + [mag(sol('D')[i][j])]
     prunedsol['\dot{V}_+'] = sol('\dot{V}_+')
     prunedsol['\dot{V}_-'] = sol('\dot{V}_-')
-    print prunedsol
+    print(prunedsol)
     draw_KT_network(prunedsol, coordinates, topology_list)
 
 def draw_tree(pathnodes):
     nr_vertices = len(pathnodes)
-    v_label = map(str, [pathnode.id for pathnode in pathnodes])
+    v_label = list(map(str, [pathnode.id for pathnode in pathnodes]))
     G = jgraph.Graph.Tree(nr_vertices, [len(i.children) for i in pathnodes]) # 2 stands for children number
     lay = G.layout('rt')
 

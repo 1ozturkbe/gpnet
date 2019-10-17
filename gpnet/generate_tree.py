@@ -1,9 +1,13 @@
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from builtins import object
 import numpy as np
 import operator
 from collections import OrderedDict
 from scipy.spatial import ConvexHull
 
-from generate_data import return_undirected, define_length
+from .generate_data import return_undirected, define_length
 
 class Node(object):
     "Generic tree node."
@@ -33,7 +37,7 @@ def find_convex_hull(coordinate_dict):
     :return:
     """
     hull_pts = {}
-    point_list = [value for key, value in coordinate_dict.iteritems()]
+    point_list = [value for key, value in coordinate_dict.items()]
     cvx_hull = ConvexHull(point_list)
     for i in cvx_hull.vertices:
         hull_pts[i] = tuple(cvx_hull.points[i])
@@ -83,8 +87,8 @@ def find_apsp(L_all, topology_list, coordinate_dict):
     return apsp_dict, d_dict
 
 def nodes_from_topology_list(topology_list, coordinates):
-    nodes = [Node(i) for i in coordinates.keys()]
-    for i in coordinates.keys():
+    nodes = [Node(i) for i in list(coordinates.keys())]
+    for i in list(coordinates.keys()):
         for j in topology_list:
             if j[0] == i:
                 nodes[i].add_parent(nodes[j[1]])

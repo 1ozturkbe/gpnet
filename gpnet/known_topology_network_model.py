@@ -1,3 +1,5 @@
+from __future__ import division
+from builtins import range
 from gpkit import Model, Variable, VectorVariable, SignomialsEnabled, units
 from gpkit.constraints.tight import Tight
 import numpy as np
@@ -59,7 +61,7 @@ class DWKTFND(Model):
                             Tight([H[i] <= slack_h[pipe_index]*(H_loss[pipe_index] + H[pipe[1]])]),
                             Tight([slack_h[pipe_index] >= 1]),
                         ])
-            for pipe_index in xrange(number_of_pipes):
+            for pipe_index in range(number_of_pipes):
                 constraints += [flow[pipe_index] <= maxFlow,
                                 pipeCost[pipe_index] == 1.1 * D[pipe_index] ** 1.5 * L[pipe_index] / units.m ** 2.5,
                                 H_loss[pipe_index] == f[pipe_index] * L[pipe_index] * V[pipe_index] ** 2 / (
@@ -135,7 +137,7 @@ class HWKTWND(Model):
                             Tight([slack_h[pipe_index] >= 1]),
                         ])
 
-            for pipe_index in xrange(number_of_pipes):
+            for pipe_index in range(number_of_pipes):
                 constraints += [flow[pipe_index] <= maxFlow,
                                 pipeCost[pipe_index] == 1.1 * D[pipe_index] ** 1.5 * L[pipe_index] / units.m ** 2.5,
                                 # H_loss[pipe_index] == L[pipe_index] * (flow[pipe_index] / rough) ** 1.8099 / (
@@ -159,7 +161,7 @@ if __name__ == '__main__':
              865 / 3600.0, 1345 / 3600.0, 60 / 3600.0, 1275 / 3600.0, 930 / 3600.0, 485 / 3600.0, 1045 / 3600.0,
              820 / 3600.0, 170 / 3600.0,
              900 / 3600.0, 370 / 3600.0, 290 / 3600.0, 360 / 3600.0, 360 / 3600.0, 105 / 3600.0, 805 / 3600.0]
-    sources = [0 for i in xrange(N)]
+    sources = [0 for i in range(N)]
     sources[0] = sum(sinks)
     topology_list = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11],
                      [11, 12],

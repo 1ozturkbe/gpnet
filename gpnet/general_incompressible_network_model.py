@@ -1,7 +1,11 @@
+from __future__ import absolute_import
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 from gpkit import Model, Variable, VectorVariable, SignomialsEnabled, units
 from gpkit.constraints.tight import Tight
-from generate_data import define_length, define_topology
-from draw_network import draw_network
+from .generate_data import define_length, define_topology
+from .draw_network import draw_network
 import numpy as np
 
 def all_connect_without_self(N):
@@ -127,7 +131,7 @@ if __name__ == '__main__':
              525, 500, 560, 940, 615, 280, 310,
              865, 1345, 60, 1275, 930, 485, 1045,
              820, 170, 900, 370, 290, 360, 360, 105, 805])/3600.
-    sources = [0 for i in xrange(N)]
+    sources = [0 for i in range(N)]
     sources[0] = sum(sinks)
     topology_list = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11],
                      [11, 12],
@@ -168,9 +172,9 @@ if __name__ == '__main__':
     # sources = [sum(sinks), 0]
     # topology_list = [[0,1]]
 
-    roughness = [[0.26e-6 for _ in xrange(N)] for _ in xrange(N)]
+    roughness = [[0.26e-6 for _ in range(N)] for _ in range(N)]
 
-    L = [[0 for i in xrange(N)] for j in xrange(N)]
+    L = [[0 for i in range(N)] for j in range(N)]
     for p1 in coordinates:
         for p2 in coordinates:
             L[p1][p2] = np.sqrt((coordinates[p1][0] - coordinates[p2][0]) ** 2 +
