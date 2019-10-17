@@ -5,8 +5,8 @@ from gpkit.constraints.tight import Tight
 import numpy as np
 
 # Known Topology Fluid Network Design
-class DWKTFND(Model):
-    # Darcy-Weisbach Known Topology Water Network Design
+class DW_KT_FND(Model):
+    # Darcy-Weisbach Known Topology Fluid Network Design
     def setup(self, N, topology_list, penalty=10.):
         number_of_pipes = len(topology_list)
         H = VectorVariable(N, "H", "m", "Head")
@@ -71,7 +71,7 @@ class DWKTFND(Model):
                                 Re[pipe_index] == rho * V[pipe_index] * D[pipe_index] / mu,
                                 D[pipe_index] <= D_max,
                                 D[pipe_index] >= D_min]
-
+                # From frictionFactorFitting.py
                 constraints += [f[pipe_index] ** 2.39794 >= 3.26853e-06 * Re[pipe_index] ** 0.0574443 *
                                 relRough[pipe_index] ** 0.364794 + 0.0001773 * Re[pipe_index] ** -0.529499 *
                                 relRough[pipe_index] ** -0.0810121 + 0.00301918 * Re[pipe_index] ** -0.0220498 *
@@ -84,8 +84,8 @@ class DWKTFND(Model):
                             (np.prod(slack_out) * np.prod(slack_in) * np.prod(slack_h)**penalty)]
         return constraints
 
-class HWKTWND(Model):
-    # Hazen-Williams Known Topology Water Network Design
+class HW_KT_FND(Model):
+    # Hazen-Williams Known Topology Fluid Network Design (specific to water!)
     def setup(self, N, topology_list, penalty=10.):
         number_of_pipes = len(topology_list)
         H = VectorVariable(N, "H", "m", "Head")
@@ -101,7 +101,6 @@ class HWKTWND(Model):
         slack_out = VectorVariable(N, "S_{out}", "-", "Outflow Slack")
         slack_in = VectorVariable(N, "S_{in}", "-", "Inflow Slack")
         slack_h = VectorVariable(number_of_pipes, "S_h", "-", "Head Slack")
-        slackCost = Variable("C_s", "-", "Slack Cost")
         totalCost = Variable("C", "m^3/s", "Total Cost")
         D_max = Variable("D_{max}", "m", "Maximum Diameter")
         D_min = Variable("D_{min}", "m", "Minimum Diameter")
@@ -152,38 +151,3 @@ class HWKTWND(Model):
             constraints += [totalCost >= np.sum(flow * pipeCost) *
                                         (np.prod(slack_out) * np.prod(slack_in) * np.prod(slack_h)**penalty)]
         return constraints
-
-if __name__ == '__main__':
-    N = 32
-    sinks = [0, 890 / 3600.0, 850 / 3600.0, 130 / 3600.0, 725 / 3600.0, 1005 / 3600.0, 1350 / 3600.0, 550 / 3600.0,
-             525 / 3600.0,
-             525 / 3600.0, 500 / 3600.0, 560 / 3600.0, 940 / 3600.0, 615 / 3600.0, 280 / 3600.0, 310 / 3600.0,
-             865 / 3600.0, 1345 / 3600.0, 60 / 3600.0, 1275 / 3600.0, 930 / 3600.0, 485 / 3600.0, 1045 / 3600.0,
-             820 / 3600.0, 170 / 3600.0,
-             900 / 3600.0, 370 / 3600.0, 290 / 3600.0, 360 / 3600.0, 360 / 3600.0, 105 / 3600.0, 805 / 3600.0]
-    sources = [0 for i in range(N)]
-    sources[0] = sum(sinks)
-    topology_list = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11],
-                     [11, 12],
-                     [9, 13], [13, 14], [14, 15], [16, 15], [17, 16], [18, 17], [2, 18], [2, 19], [19, 20], [20, 21],
-                     [19, 22], [22, 23], [23, 24], [25, 24], [26, 25], [15, 26], [22, 27], [27, 28], [28, 29], [29, 30],
-                     [31, 30], [24, 31]]
-    L = [100, 1350, 900, 1150, 1450, 450, 850, 850, 800, 950, 1200, 3500, 800, 500, 550, 2730, 1750, 800, 400, 2200,
-         1500, 500, 2650, 1230, 1300, 850, 300, 750, 1500, 2000, 1600, 150, 860, 950]
-
-    m = DWKTWND(N, topology_list)
-
-    m.substitutions.update({
-        "L": L,
-        "\dot{V}_+": sources,
-        "\dot{V}_-": sinks,
-        "\\epsilon": 130,
-        "H_{min}": 10,
-        "D_{max}": 1.016,
-        "D_{min}": 0.3048,
-        "F_{max}": 1e20,
-        "C_s": 1,
-    })
-
-    m.cost = m['C']
-    sol = m.localsolve(verbosity=4, reltol=1e-4, iteration_limit=1500)

@@ -7,8 +7,6 @@ import matplotlib.pyplot as plt
 
 
 # fixed initial guess for fitting
-
-
 def generate_friction_factor_data(Re, relRough):
     Re, relRough = meshgrid(Re, relRough)
     Re = Re.flatten()
@@ -20,7 +18,6 @@ def generate_friction_factor_data(Re, relRough):
     x = np.log(x)
     y = np.log(f)
     return x, y
-
 
 def fit_friction_factor_data(x, y, k, method):
     c, error = fit(x, y, k, method)
