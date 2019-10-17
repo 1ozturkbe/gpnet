@@ -16,7 +16,7 @@ class DWKTFND(Model):
         pipeCost = VectorVariable(number_of_pipes, "P_f", "-",
                                   "Pipe Cost")
         L = VectorVariable(number_of_pipes, "L", "m", "Pipe Length")
-        D = VectorVariable(number_of_pipes, "D", "m", "Pipe Diameter")
+        D = VectorVariable(number_of_pipes, "D", "m", "Pipe Diameter", pr=10.)
         maxFlow = Variable("F_{max}", "m^3/s", 'Maximum Flow Rate')
         flow = VectorVariable(number_of_pipes, "F", "m^3/s", "Flow Rate")
         V = VectorVariable(number_of_pipes, "V_f", "m/s", "Flow Velocity")

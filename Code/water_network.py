@@ -4,6 +4,8 @@ from generate_data import define_topology, define_length
 from draw_network import draw_KT_network
 import numpy as np
 
+from robust.robust import RobustModel
+
 if __name__ == '__main__':
     # Changing Tightness requirement to within 0.1%
     Tight.reltol = 10.**-3
@@ -77,3 +79,8 @@ if __name__ == '__main__':
     print sol['cost']
 
     draw_KT_network(sol, coordinates, topology_list)
+
+    # Comparing against robust solution
+    # rm = RobustModel(m, 'box', nominalsolve=sol, gamma=1)
+    # rmsol = rm.robustsolve()
+    # draw_KT_network(rmsol, coordinates, topology_list)
