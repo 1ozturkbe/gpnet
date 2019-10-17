@@ -1,9 +1,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
-from builtins import range
 from gpkit.constraints.tight import Tight
-from known_topology_network_model import DW_KT_FND, HW_KT_FND
-from generate_data import define_topology, define_length
 from draw_network import draw_KT_network
 from testing.layout import hanoi
 import numpy as np
