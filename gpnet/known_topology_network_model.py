@@ -11,14 +11,14 @@ class DW_KT_FND(Model):
         number_of_pipes = len(topology_list)
         H = VectorVariable(N, "H", "m", "Head")
         H_min = VectorVariable(N, "H_{min}", "m", "Minimal Head Required")
-        source = VectorVariable(N, "\dot{V}_+", "m^3/s", "Source")
-        sink = VectorVariable(N, "\dot{V}_-", "m^3/s", "Sink")
+        source = VectorVariable(N, "\dot{V}_+", "m^3/s", "Source", pr=20)
+        sink = VectorVariable(N, "\dot{V}_-", "m^3/s", "Sink", pr=20)
         rough = Variable("\\epsilon", "m", "Pipe Roughness")
-        relRough = VectorVariable(number_of_pipes, "\\epsilon/D", "-", "Relative Pipe Roughness")
+        relRough = VectorVariable(number_of_pipes, "\\bar{\\epsilon}", "-", "Relative Pipe Roughness")
         pipeCost = VectorVariable(number_of_pipes, "P_f", "-",
                                   "Pipe Cost")
         L = VectorVariable(number_of_pipes, "L", "m", "Pipe Length")
-        D = VectorVariable(number_of_pipes, "D", "m", "Pipe Diameter", pr=10.)
+        D = VectorVariable(number_of_pipes, "D", "m", "Pipe Diameter")
         maxFlow = Variable("F_{max}", "m^3/s", 'Maximum Flow Rate')
         flow = VectorVariable(number_of_pipes, "F", "m^3/s", "Flow Rate")
         V = VectorVariable(number_of_pipes, "V_f", "m/s", "Flow Velocity")
@@ -119,6 +119,7 @@ class HW_KT_FND(Model):
                     if pipe[1] == i:
                         flow_out += flow[pipe_index]
 
+                # Mass conservation constraints
                 constraints.extend([
                     Tight([flow_in <= slack_out[i] * flow_out]),
                     Tight([slack_out[i] >= 1]),
@@ -128,6 +129,7 @@ class HW_KT_FND(Model):
                     # Tight([slack_in[i] <= 10]),
                     H[i] >= H_min[i]
                 ])
+                # Head loss constraints
                 for pipe_index, pipe in enumerate(topology_list):
                     if pipe[0] == i:
                         constraints.extend([

@@ -12,6 +12,7 @@ def generate_friction_factor_data(Re, relRough):
     Re = Re.flatten()
     relRough = relRough.flatten()
 
+    # Swamee-Jain Equation
     f = 0.25 / log(relRough / 3.7 + 5.74 / Re ** 0.9) ** 2
 
     x = [Re, relRough]
