@@ -13,12 +13,11 @@ if __name__ == '__main__':
     m = hanoi(friction='HW')
     warm_start = {m["D"]: (1.016 - 0.3048)*np.random.rand(len(m.topology_list)) + 0.3048}
     sol = m.localsolve(verbosity=2, reltol=1e-2, iteration_limit=50, x0=warm_start)
-    # sol = m.localsolve(verbosity=2, reltol=1e-2, iteration_limit=100)
     print(sol['cost'])
 
     draw_KT_network(sol, m.coordinates, m.topology_list)
 
     # Comparing against robust solution
-    rm = RobustModel(m, 'box', nominalsolve=sol, gamma=1)
+    rm = RobustModel(m, 'elliptical', nominalsolve=sol, gamma=1)
     rmsol = rm.robustsolve()
     draw_KT_network(rmsol, m.coordinates, m.topology_list)

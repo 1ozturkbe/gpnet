@@ -20,8 +20,8 @@ class DW_KT_FND(Model):
         L = VectorVariable(number_of_pipes, "L", "m", "Pipe Length")
         D = VectorVariable(number_of_pipes, "D", "m", "Pipe Diameter")
         maxFlow = Variable("F_{max}", "m^3/s", 'Maximum Flow Rate')
-        flow = VectorVariable(number_of_pipes, "F", "m^3/s", "Flow Rate")
-        V = VectorVariable(number_of_pipes, "V_f", "m/s", "Flow Velocity")
+        flow = VectorVariable(number_of_pipes, "q", "m^3/s", "Flow Rate")
+        V = VectorVariable(number_of_pipes, "v_f", "m/s", "Flow Velocity")
         H_loss = VectorVariable(number_of_pipes, "H_L", "m", "Head Loss")
         Re = VectorVariable(number_of_pipes, "Re", "-", "Reynold's Number")
         f = VectorVariable(number_of_pipes, "f", "-", "Friction Factor")
@@ -54,11 +54,12 @@ class DW_KT_FND(Model):
                     Tight([slack_in[i] >= 1]), Tight([slack_out[i] >= 1]),
                     H[i] >= H_min[i]
                 ])
+                # Head loss constraints
                 for pipe_index, pipe in enumerate(topology_list):
                     if pipe[0] == i:
                         constraints.extend([
-                            Tight([H[i] >= H_loss[pipe_index] + H[pipe[1]]]),
-                            Tight([H[i] <= slack_h[pipe_index]*(H_loss[pipe_index] + H[pipe[1]])]),
+                            Tight([H[pipe[0]] >= H_loss[pipe_index] + H[pipe[1]]]),
+                            Tight([H[pipe[0]] <= slack_h[pipe_index]*(H_loss[pipe_index] + H[pipe[1]])]),
                             Tight([slack_h[pipe_index] >= 1]),
                         ])
             for pipe_index in range(number_of_pipes):
@@ -96,7 +97,8 @@ class HW_KT_FND(Model):
         L = VectorVariable(number_of_pipes, "L", "m", "Pipe Length")
         D = VectorVariable(number_of_pipes, "D", "m", "Pipe Diameter")
         maxFlow = Variable("F_{max}", "m^3/s", 'Maximum Flow Rate')
-        flow = VectorVariable(number_of_pipes, "F", "m^3/s", "Flow Rate")
+        flow = VectorVariable(number_of_pipes, "q", "m^3/s", "Flow Rate")
+        direction = VectorVariable(2*number_of_pipes, "bin", "-", "Flow Direction")
         H_loss = VectorVariable(number_of_pipes, "H_L", "m", "Head Loss")
         slack_out = VectorVariable(N, "S_{out}", "-", "Outflow Slack")
         slack_in = VectorVariable(N, "S_{in}", "-", "Inflow Slack")
@@ -133,8 +135,8 @@ class HW_KT_FND(Model):
                 for pipe_index, pipe in enumerate(topology_list):
                     if pipe[0] == i:
                         constraints.extend([
-                            Tight([H[i] >= H_loss[pipe_index] + H[pipe[1]]]),
-                            Tight([H[i] <= slack_h[pipe_index]*(H_loss[pipe_index] + H[pipe[1]])]),
+                            Tight([H[pipe[0]] >= H_loss[pipe_index] + H[pipe[1]]]),
+                            Tight([H[pipe[0]] <= slack_h[pipe_index]*(H_loss[pipe_index] + H[pipe[1]])]),
                             Tight([slack_h[pipe_index] >= 1]),
                         ])
 
