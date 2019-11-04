@@ -30,26 +30,27 @@ def read_inp(file_directory):
             count += 1
         data[markers[n]] = relevant_data
     # CLEANING DATA
+    # Note: since python is zero-indexed, we remove 1 from indices.
     for marker, relevant_data in data.iteritems():
         if marker == j: # junctions
             for i in range(len(relevant_data)):
                 junction_index, elev, demand = relevant_data[i][0:3]
-                elevation[float(junction_index)] = float(elev)
-                sinks[float(junction_index)] = float(demand)
+                elevation[int(junction_index)-1] = float(elev)
+                sinks[int(junction_index)-1] = float(demand)
         elif marker == r:
             for i in range(len(relevant_data)):
                 junction_index, headpress = relevant_data[i][0:2]
-                head[float(junction_index)] = float(headpress)
-                elevation[float(junction_index)] = float(headpress)
+                head[int(junction_index)-1] = float(headpress)
+                elevation[int(junction_index)-1] = float(headpress)
         elif marker == c:
             for i in range(len(relevant_data)):
                 junction_index, x, y = relevant_data[i][0:3]
-                coordinates[float(junction_index)] = [float(x), float(y)]
+                coordinates[int(junction_index)-1] = [float(x), float(y)]
         elif marker == p:
             for i in range(len(relevant_data)):
                 pipe_ID, node1, node2, length, diameter, rough = relevant_data[i][0:6]
-                pipe_ID = float(pipe_ID)
-                topology_dict[pipe_ID] = [int(node1), int(node2)]
+                pipe_ID = int(pipe_ID)-1
+                topology_dict[pipe_ID] = [int(node1)-1, int(node2)-1]
                 L[pipe_ID] = float(length)
                 D[pipe_ID] = float(diameter)
                 roughness[pipe_ID] = float(rough)
