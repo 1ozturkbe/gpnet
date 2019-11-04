@@ -13,7 +13,7 @@ class DW_KT_FND(Model):
         H_min = VectorVariable(N, "H_{min}", "m", "Minimal Head Required")
         source = VectorVariable(N, "\dot{V}_+", "m^3/s", "Source", pr=20)
         sink = VectorVariable(N, "\dot{V}_-", "m^3/s", "Sink", pr=20)
-        rough = Variable("\\epsilon", "m", "Pipe Roughness")
+        rough = VectorVariable(number_of_pipes, "\\epsilon", "m", "Pipe Roughness")
         relRough = VectorVariable(number_of_pipes, "\\bar{\\epsilon}", "-", "Relative Pipe Roughness")
         pipeCost = VectorVariable(number_of_pipes, "P_f", "-",
                                   "Pipe Cost")
@@ -68,7 +68,7 @@ class DW_KT_FND(Model):
                                 H_loss[pipe_index] == f[pipe_index] * L[pipe_index] * V[pipe_index] ** 2 / (
                                             2 * D[pipe_index] * g),
                                 V[pipe_index] == 4 * flow[pipe_index] / (np.pi * D[pipe_index] ** 2),
-                                relRough[pipe_index] == rough / D[pipe_index],
+                                relRough[pipe_index] == rough[pipe_index] / D[pipe_index],
                                 Re[pipe_index] == rho * V[pipe_index] * D[pipe_index] / mu,
                                 D[pipe_index] <= D_max,
                                 D[pipe_index] >= D_min]
@@ -106,7 +106,7 @@ class HW_KT_FND(Model):
         totalCost = Variable("C", "m^3/s", "Total Cost")
         D_max = Variable("D_{max}", "m", "Maximum Diameter")
         D_min = Variable("D_{min}", "m", "Minimum Diameter")
-        rough = Variable("\\epsilon", "-", "Pipe Roughness")
+        rough = VectorVariable(number_of_pipes, "\\epsilon", "m", "Pipe Roughness")
 
         constraints = []
 
@@ -143,10 +143,10 @@ class HW_KT_FND(Model):
             for pipe_index in range(number_of_pipes):
                 constraints += [flow[pipe_index] <= maxFlow,
                                 pipeCost[pipe_index] == 1.1 * D[pipe_index] ** 1.5 * L[pipe_index] / units.m ** 2.5,
-                                # H_loss[pipe_index] == L[pipe_index] * (flow[pipe_index] / rough) ** 1.8099 / (
+                                # H_loss[pipe_index] == L[pipe_index] * (flow[pipe_index] / rough[pipe_index]) ** 1.8099 / (
                                 #             994.62 * (D[pipe_index]) ** 4.8099),
                                 H_loss[pipe_index] == 10.67*L[pipe_index] * (flow[pipe_index]/units('m^3/s')) ** 1.852 /
-                                                        (rough**1.852*(D[pipe_index]/units('m'))**4.8704),
+                                                        (rough[pipe_index]**1.852*(D[pipe_index]/units('m'))**4.8704),
                                 # S (hydraulic slope H/L) = 10.67*Q^1.852 (volumetric flow rate) /
                                 # C^1.852 (pipe roughness) /d^4.8704 (pipe diameter)
                                 D[pipe_index] <= D_max,
