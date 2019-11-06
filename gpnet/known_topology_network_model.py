@@ -7,8 +7,8 @@ import numpy as np
 # Known Topology Fluid Network Design
 class DW_KT_FND(Model):
     # Darcy-Weisbach Known Topology Fluid Network Design
-    def setup(self, N, topology_list, penalty=10.):
-        number_of_pipes = len(topology_list)
+    def setup(self, N, topology_dict, penalty=10.):
+        number_of_pipes = len(topology_dict)
         H = VectorVariable(N, "H", "m", "Head")
         H_min = VectorVariable(N, "H_{min}", "m", "Minimal Head Required")
         source = VectorVariable(N, "\dot{V}_+", "m^3/s", "Source", pr=20)
@@ -42,10 +42,10 @@ class DW_KT_FND(Model):
             for i in range(0, N):
                 flow_in = sink[i]
                 flow_out = source[i]
-                for pipe_index, pipe in enumerate(topology_list):
-                    if pipe[0] == i:
+                for pipe_index, node in topology_dict.iteritems():
+                    if node[0] == i:
                         flow_in += flow[pipe_index]
-                    if pipe[1] == i:
+                    if node[1] == i:
                         flow_out += flow[pipe_index]
 
                 constraints.extend([
@@ -55,11 +55,11 @@ class DW_KT_FND(Model):
                     H[i] >= H_min[i]
                 ])
                 # Head loss constraints
-                for pipe_index, pipe in enumerate(topology_list):
-                    if pipe[0] == i:
+                for pipe_index, node in topology_dict.iteritems():
+                    if node[0] == i:
                         constraints.extend([
-                            Tight([H[pipe[0]] >= H_loss[pipe_index] + H[pipe[1]]]),
-                            Tight([H[pipe[0]] <= slack_h[pipe_index]*(H_loss[pipe_index] + H[pipe[1]])]),
+                            Tight([H[node[0]] >= H_loss[pipe_index] + H[node[1]]]),
+                            Tight([H[node[0]] <= slack_h[pipe_index]*(H_loss[pipe_index] + H[node[1]])]),
                             Tight([slack_h[pipe_index] >= 1]),
                         ])
             for pipe_index in range(number_of_pipes):
@@ -87,8 +87,8 @@ class DW_KT_FND(Model):
 
 class HW_KT_FND(Model):
     # Hazen-Williams Known Topology Fluid Network Design (specific to water!)
-    def setup(self, N, topology_list, penalty=10.):
-        number_of_pipes = len(topology_list)
+    def setup(self, N, topology_dict, penalty=10.):
+        number_of_pipes = len(topology_dict)
         H = VectorVariable(N, "H", "m", "Head")
         H_min = VectorVariable(N, "H_{min}", "m", "Minimal Head Required")
         source = VectorVariable(N, "\dot{V}_+", "m^3/s", "Source")
@@ -115,10 +115,10 @@ class HW_KT_FND(Model):
             for i in range(0, N):
                 flow_in = sink[i]
                 flow_out = source[i]
-                for pipe_index, pipe in enumerate(topology_list):
-                    if pipe[0] == i:
+                for pipe_index, node in topology_dict.iteritems():
+                    if node[0] == i:
                         flow_in += flow[pipe_index]
-                    if pipe[1] == i:
+                    if node[1] == i:
                         flow_out += flow[pipe_index]
 
                 # Mass conservation constraints
@@ -132,11 +132,11 @@ class HW_KT_FND(Model):
                     H[i] >= H_min[i]
                 ])
                 # Head loss constraints
-                for pipe_index, pipe in enumerate(topology_list):
-                    if pipe[0] == i:
+                for pipe_index, node in topology_dict.iteritems():
+                    if node[0] == i:
                         constraints.extend([
-                            Tight([H[pipe[0]] >= H_loss[pipe_index] + H[pipe[1]]]),
-                            Tight([H[pipe[0]] <= slack_h[pipe_index]*(H_loss[pipe_index] + H[pipe[1]])]),
+                            Tight([H[node[0]] >= H_loss[pipe_index] + H[node[1]]]),
+                            Tight([H[node[0]] <= slack_h[pipe_index]*(H_loss[pipe_index] + H[node[1]])]),
                             Tight([slack_h[pipe_index] >= 1]),
                         ])
 
@@ -155,3 +155,8 @@ class HW_KT_FND(Model):
             constraints += [totalCost >= np.sum(flow * pipeCost) *
                                         (np.prod(slack_out) * np.prod(slack_in) * np.prod(slack_h)**penalty)]
         return constraints
+
+def subs_with_dict(m, varkey, dict):
+    for idx, val in dict.iteritems():
+        m.substitutions.update({varkey[idx]:val})
+

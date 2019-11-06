@@ -17,8 +17,8 @@ def forceAspect(ax, aspect=1):
     extent = im[0].get_extent()
     ax.set_aspect(abs((extent[1] - extent[0]) / (extent[3] - extent[2])) / aspect)
 
-def draw_KT_network(sol, coordinates, topology_list):
-    coordinate_list = [[coordinates[i[0]], coordinates[i[1]]] for i in topology_list]
+def draw_KT_network(sol, coordinates, topology_dict):
+    coordinate_list = [[coordinates[i[0]], coordinates[i[1]]] for i in topology_dict.values()]
     orig, dest = zip(*coordinate_list)
     xmin, ymin, xmax, ymax = 1e10 * np.array([1, 1, -1, -1])
     # Arrow parameters for flow plotting
@@ -36,7 +36,7 @@ def draw_KT_network(sol, coordinates, topology_list):
     fig = plt.figure()
     ax1 = fig.add_subplot(1, 2, 1, aspect=1)
     ax2 = fig.add_subplot(1, 2, 2, aspect=1)
-    for i in range(len(topology_list)):
+    for i in range(len(topology_dict)):
         xmin = np.min([xmin, orig[i][0], dest[i][0]])
         xmax = np.max([xmax, orig[i][0], dest[i][0]])
         ymin = np.min([ymin, orig[i][1], dest[i][1]])
@@ -79,7 +79,8 @@ def draw_network(sol, coordinates):
     prunedsol['\dot{V}_+'] = sol('\dot{V}_+')
     prunedsol['\dot{V}_-'] = sol('\dot{V}_-')
     print(prunedsol)
-    draw_KT_network(prunedsol, coordinates, topology_list)
+    topology_dict = {i:topology_list[i] for i in range(len(topology_list))}
+    draw_KT_network(prunedsol, coordinates, topology_dict)
 
 def draw_tree(pathnodes):
     nr_vertices = len(pathnodes)
