@@ -97,7 +97,7 @@ def ostfeld_n1(friction='DW'):
 
 def hanoi_from_data(friction='DW'):
     path = os.path.dirname(__file__)
-    elevation, head, sinks, coordinates, topology_dict, L, D, roughness = read_inp(path+'/inps/hanoi.inp')
+    elevation, head, sinks, coordinates, topology_dict, L, D, roughness = read_inp(path+'/inps/hanoi.inp', min_junc_index=1, min_pipe_index=1)
     # elevation, head, sinks, coordinates, topology_dict, L, D, roughness = read_inp('testing/inps/hanoi.inp')
     N = len(elevation)
     K = len(topology_dict)
