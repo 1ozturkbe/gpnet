@@ -146,7 +146,7 @@ class HW_KT_FND(Model):
                                 # H_loss[pipe_index] == L[pipe_index] * (flow[pipe_index] / rough[pipe_index]) ** 1.8099 / (
                                 #             994.62 * (D[pipe_index]) ** 4.8099),
                                 H_loss[pipe_index] == 10.67*L[pipe_index] * (flow[pipe_index]/units('m^3/s')) ** 1.852 /
-                                                        (rough[pipe_index]**1.852*(D[pipe_index]/units('m'))**4.8704),
+                                                        ((rough[pipe_index]/units('m'))**1.852*(D[pipe_index]/units('m'))**4.8704),
                                 # S (hydraulic slope H/L) = 10.67*Q^1.852 (volumetric flow rate) /
                                 # C^1.852 (pipe roughness) /d^4.8704 (pipe diameter)
                                 D[pipe_index] <= D_max,
