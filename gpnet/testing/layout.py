@@ -35,11 +35,10 @@ def hanoi(friction='DW'):
     # Defining roughness and minimum head (m)
     h_min = [30 for _ in range(N)]
 
+    m = KT_FND(N, topology_dict, friction=friction)
     if friction == 'DW':
-        m = KT_FND(N, topology_dict, friction=friction)
         roughness = 0.26e-6
     elif friction == 'HW':
-        m = KT_FND(N, topology_dict, friction=friction)
         roughness = 130
     else:
         print('Friction model %s is not yet supported.' % friction)
@@ -54,14 +53,6 @@ def hanoi(friction='DW'):
         "D_{max}": 1.016,
         "D_{min}": 0.3048,
     })
-    # Substitutions depending on friction model
-    if friction == 'DW':
-        m.substitutions.update({
-            "\\rho": 1000,
-            "\\mu": 8.9e-4,
-            "g": 9.81,
-        })
-
     m.cost = m['C']
     m.coordinates = coordinates
     m.topology_dict = topology_dict
@@ -75,12 +66,10 @@ def ostfeld_n1(friction='DW'):
     N = len(elevation)
     K = len(topology_dict)
 
+    m = KT_FND(N, topology_dict, friction=friction)
     if friction == 'DW':
-        m = KT_FND(N, topology_dict, friction=friction)
         roughness = {i: 0.26e-6 for i,v in roughness.iteritems()}
-    elif friction == 'HW':
-        m = KT_FND(N, topology_dict, friction=friction)
-    else:
+    elif friction != 'HW':
         print('Friction model %s is not yet supported.' % friction)
 
     for idx, val in sinks.iteritems():
@@ -113,12 +102,10 @@ def hanoi_from_data(friction='DW'):
     N = len(elevation)
     K = len(topology_dict)
 
+    m = KT_FND(N, topology_dict, friction=friction)
     if friction == 'DW':
-        m = KT_FND(N, topology_dict, friction=friction)
         roughness = {i: 0.26e-6 for i,v in roughness.iteritems()}
-    elif friction == 'HW':
-        m = KT_FND(N, topology_dict, friction=friction)
-    else:
+    elif friction != 'HW':
         print('Friction model %s is not yet supported.' % friction)
 
     for idx, val in sinks.iteritems():
@@ -151,11 +138,11 @@ def small_graph(friction='DW'):
     topology_dict = {0: [0, 1], 1: [1, 2], 2: [1, 3], 3: [2, 4], 4: [3,4]}
     coordinates = {0: (0, 1000), 1: (0, 0), 2: (1000, 0), 3: (-1000, 0), 4: (1000, -1000)}
     L_all = define_length(coordinates)
+
+    m = KT_FND(N, topology_dict, friction=friction)
     if friction == 'DW':
-        m = KT_FND(N, topology_dict, friction=friction)
         m.substitutions.update({"\\epsilon":0.26e-6*np.ones(N)})
     elif friction == 'HW':
-        m = HW_KT_FND(N, topology_dict, friction=friction)
         m.substitutions.update({"\\epsilon":130*np.ones(N)})
     else:
         print('Friction model %s is not yet supported.' % friction)
