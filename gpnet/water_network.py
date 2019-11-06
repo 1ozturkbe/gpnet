@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
     m2 = hanoi(friction='DW')
     warm_start = {m2["D"]: (1.016 - 0.3048)*np.random.rand(len(m2.topology_dict)) + 0.3048}
-    sol2 = m2.localsolve(verbosity=2, reltol=1e-2, iteration_limit=150, x0=warm_start)
+    sol2 = m2.localsolve(verbosi1ty=2, reltol=1e-2, iteration_limit=150, x0=warm_start)
     print(sol2['cost'])
 
     m1 = hanoi_from_data(friction='HW')
@@ -30,10 +30,7 @@ if __name__ == '__main__':
     sol2 = m2.localsolve(verbosity=2, reltol=1e-2, iteration_limit=150, x0=warm_start)
     print(sol2['cost'])
 
-    sol1.diff(sol2)
-
-
-    draw_KT_network(sol, m.coordinates, m.topology_dict)
+    draw_KT_network(sol1, m1.coordinates, m1.topology_dict)
 
     # Comparing against robust solution
     # rm = RobustModel(m, 'elliptical', nominalsolve=sol, gamma=1)

@@ -53,7 +53,6 @@ def hanoi(friction='DW'):
         m["H"][0]: 100,
         "D_{max}": 1.016,
         "D_{min}": 0.3048,
-        "F_{max}": 1e20,
     })
     # Substitutions depending on friction model
     if friction == 'DW':
@@ -62,6 +61,45 @@ def hanoi(friction='DW'):
             "\\mu": 8.9e-4,
             "g": 9.81,
         })
+
+    m.cost = m['C']
+    m.coordinates = coordinates
+    m.topology_dict = topology_dict
+    return m
+
+def ostfeld_n1(friction='DW'):
+    path = os.path.dirname(__file__)
+    path = 'testing'
+    elevation, head, sinks, coordinates, topology_dict, L, D, roughness = read_inp(path+'/inps/Ostfeld/Network_1.inp')
+    # elevation, head, sinks, coordinates, topology_dict, L, D, roughness = read_inp('testing/inps/hanoi.inp')
+    N = len(elevation)
+    K = len(topology_dict)
+
+    if friction == 'DW':
+        m = KT_FND(N, topology_dict, friction=friction)
+        roughness = {i: 0.26e-6 for i,v in roughness.iteritems()}
+    elif friction == 'HW':
+        m = KT_FND(N, topology_dict, friction=friction)
+    else:
+        print('Friction model %s is not yet supported.' % friction)
+
+    for idx, val in sinks.iteritems():
+        m.substitutions.update({m["\dot{V}_-"][idx]: val/3600}) # converting to per second
+        m.substitutions.update({m["\dot{V}_+"][idx]: 0})
+    for idx, val in head.iteritems():
+        m.substitutions.update({m["H"][idx]: val})
+        m.substitutions.update({m["\dot{V}_-"][idx]: 0})
+        m.substitutions.update({m["\dot{V}_+"][idx]: sum(sinks.values())/3600.})
+    for idx, val in roughness.iteritems():
+        m.substitutions.update({m["\\epsilon"][idx]: val})
+    for idx, val in L.iteritems():
+        m.substitutions.update({m["L"][idx]: val})
+
+    m.substitutions.update({
+        "H_{min}": [30 for _ in range(N)],
+        "D_{max}": 1.016,
+        "D_{min}": 0.3048,
+    })
 
     m.cost = m['C']
     m.coordinates = coordinates
@@ -99,15 +137,7 @@ def hanoi_from_data(friction='DW'):
         "H_{min}": [30 for _ in range(N)],
         "D_{max}": 1.016,
         "D_{min}": 0.3048,
-        "F_{max}": 1e20,
     })
-    # Substitutions depending on friction model
-    if friction == 'DW':
-        m.substitutions.update({
-            "\\rho": 1000,
-            "\\mu": 8.9e-4,
-            "g": 9.81,
-        })
 
     m.cost = m['C']
     m.coordinates = coordinates
@@ -137,15 +167,7 @@ def small_graph(friction='DW'):
         m["H"][0]: 100,
         "D_{max}": 1.016,
         "D_{min}": 0.3048,
-        "F_{max}": 1e20,
     })
-    # Substitutions depending on friction model
-    if friction == 'DW':
-        m.substitutions.update({
-            "\\rho": 1000,
-            "\\mu": 8.9e-4,
-            "g": 9.81,
-        })
     m.cost = m['C']
     m.coordinates = coordinates
     m.topology_dict = topology_dict

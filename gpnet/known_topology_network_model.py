@@ -18,8 +18,9 @@ class KT_FND(Model):
                                   "Pipe Cost")
         L = VectorVariable(number_of_pipes, "L", "m", "Pipe Length")
         D = VectorVariable(number_of_pipes, "D", "m", "Pipe Diameter")
-        maxFlow = Variable("F_{max}", "m^3/s", 'Maximum Flow Rate')
         flow = VectorVariable(number_of_pipes, "q", "m^3/s", "Flow Rate")
+        V = VectorVariable(number_of_pipes, "v_f", "m/s", "Flow Velocity")
+        maxV = Variable("v_{max}", 1e20, "m/s", 'Maximum Flow Velocity')
         H_loss = VectorVariable(number_of_pipes, "H_L", "m", "Head Loss")
         slack_out = VectorVariable(N, "S_{out}", "-", "Outflow Slack")
         slack_in = VectorVariable(N, "S_{in}", "-", "Inflow Slack")
@@ -27,13 +28,12 @@ class KT_FND(Model):
         totalCost = Variable("C", "m^3/s", "Total Cost")
         D_max = Variable("D_{max}", "m", "Maximum Diameter")
         D_min = Variable("D_{min}", "m", "Minimum Diameter")
-        rho = Variable("\\rho", "kg/m^3", "Density")
-        mu = Variable("\\mu", "kg/m/s", "Viscosity")
-        g = Variable("g", "m/s^2", "Gravity")
+        rho = Variable("\\rho", 1000, "kg/m^3", "Density")
+        mu = Variable("\\mu", 8.9e-4, "kg/m/s", "Viscosity")
+        g = Variable("g", 9.81, "m/s^2", "Gravity")
 
         if friction == 'DW':
             relRough = VectorVariable(number_of_pipes, "\\bar{\\epsilon}", "-", "Relative Pipe Roughness")
-            V = VectorVariable(number_of_pipes, "v_f", "m/s", "Flow Velocity")
             Re = VectorVariable(number_of_pipes, "Re", "-", "Reynold's Number")
             f = VectorVariable(number_of_pipes, "f", "-", "Friction Factor")
 
@@ -66,8 +66,9 @@ class KT_FND(Model):
                         ])
 
             for pipe_index in range(number_of_pipes):
-                constraints += [flow[pipe_index] <= maxFlow,
+                constraints += [V[pipe_index] <= maxV,
                                 pipeCost[pipe_index] == 1.1 * D[pipe_index] ** 1.5 * L[pipe_index] / units.m ** 2.5,
+                                V[pipe_index] == 4 * flow[pipe_index] / (np.pi * D[pipe_index] ** 2),
                                 D[pipe_index] <= D_max,
                                 D[pipe_index] >= D_min]
 
@@ -80,7 +81,6 @@ class KT_FND(Model):
                 if friction == 'DW':
                     constraints += [H_loss[pipe_index] == f[pipe_index] * L[pipe_index] * V[pipe_index] ** 2 / (
                                             2 * D[pipe_index] * g),
-                                V[pipe_index] == 4 * flow[pipe_index] / (np.pi * D[pipe_index] ** 2),
                                 relRough[pipe_index] == rough[pipe_index] / D[pipe_index],
                                 Re[pipe_index] == rho * V[pipe_index] * D[pipe_index] / mu,
                     # From frictionFactorFitting.py
