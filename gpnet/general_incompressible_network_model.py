@@ -35,8 +35,8 @@ class GIFND(Model):
         maxFlow = VectorVariable([N, N], "F_{max}", "m^3/s",
                                  'Maximum Flow Rate')
         connect = VectorVariable([N, N], "x", "-", "connectivity")  # Integer Variable
-        flow = VectorVariable([N, N], "F", "m^3/s", "Flow Rate")
-        V = VectorVariable([N, N], "V_f", "m/s", "Flow Velocity")
+        flow = VectorVariable([N, N], "q", "m^3/s", "Flow Rate")
+        V = VectorVariable([N, N], "v_f", "m/s", "Flow Velocity")
         H_loss = VectorVariable([N, N], "H_L", "m", "Head Loss")
         Re = VectorVariable([N, N], "Re", "-", "Reynold's Number")
         f = VectorVariable([N, N], "f", "-", "Friction Factor")
@@ -200,7 +200,7 @@ if __name__ == '__main__':
     })
 
     m.cost = m['C']
-    # warm_start = {m["F"]: [[0, 0.8], [0, 0]], m["H"]: [2000, 1990]}
+    # warm_start = {m["q"]: [[0, 0.8], [0, 0]], m["H"]: [2000, 1990]}
     sol = m.localsolve(verbosity=4, reltol=1e-2, iteration_limit=150) #x0=warm_start)
 
     draw_network(sol, coordinates)
