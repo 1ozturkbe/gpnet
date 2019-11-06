@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from gpnet.known_topology_network_model import HW_KT_FND, DW_KT_FND
+from gpnet.known_topology_network_model import KT_FND
 from gpnet.known_topology_network_model import subs_with_dict
 from gpnet.generate_data import define_length
 from gpnet.read_data import read_inp
@@ -36,10 +36,10 @@ def hanoi(friction='DW'):
     h_min = [30 for _ in range(N)]
 
     if friction == 'DW':
-        m = DW_KT_FND(N, topology_dict)
+        m = KT_FND(N, topology_dict, friction=friction)
         roughness = 0.26e-6
     elif friction == 'HW':
-        m = HW_KT_FND(N, topology_dict)
+        m = KT_FND(N, topology_dict, friction=friction)
         roughness = 130
     else:
         print('Friction model %s is not yet supported.' % friction)
@@ -76,10 +76,10 @@ def hanoi_from_data(friction='DW'):
     K = len(topology_dict)
 
     if friction == 'DW':
-        m = DW_KT_FND(N, topology_dict)
+        m = KT_FND(N, topology_dict, friction=friction)
         roughness = {i: 0.26e-6 for i,v in roughness.iteritems()}
     elif friction == 'HW':
-        m = HW_KT_FND(N, topology_dict)
+        m = KT_FND(N, topology_dict, friction=friction)
     else:
         print('Friction model %s is not yet supported.' % friction)
 
@@ -122,10 +122,10 @@ def small_graph(friction='DW'):
     coordinates = {0: (0, 1000), 1: (0, 0), 2: (1000, 0), 3: (-1000, 0), 4: (1000, -1000)}
     L_all = define_length(coordinates)
     if friction == 'DW':
-        m = DW_KT_FND(N, topology_dict)
+        m = KT_FND(N, topology_dict, friction=friction)
         m.substitutions.update({"\\epsilon":0.26e-6*np.ones(N)})
     elif friction == 'HW':
-        m = HW_KT_FND(N, topology_dict)
+        m = HW_KT_FND(N, topology_dict, friction=friction)
         m.substitutions.update({"\\epsilon":130*np.ones(N)})
     else:
         print('Friction model %s is not yet supported.' % friction)
