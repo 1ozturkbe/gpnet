@@ -8,24 +8,24 @@ import numpy as np
 class KT_FND(Model):
     # Known Topology Fluid Network Design
     def setup(self, N, topology_dict, friction='DW', penalty=10.):
-        number_of_pipes = len(topology_dict)
+        n_p = len(topology_dict) # number of pipes
         H = VectorVariable(N, "H", "m", "Head")
         H_min = VectorVariable(N, "H_{min}", "m", "Minimal Head Required")
         source = VectorVariable(N, "\dot{V}_+", "m^3/s", "Source", pr=20)
         sink = VectorVariable(N, "\dot{V}_-", "m^3/s", "Sink", pr=20)
-        rough = VectorVariable(number_of_pipes, "\\epsilon", "m", "Pipe Roughness")
-        pipeCost = VectorVariable(number_of_pipes, "P_f", "-",
+        rough = VectorVariable(n_p, "\\epsilon", "m", "Pipe Roughness")
+        pipeCost = VectorVariable(n_p, "c_p", "-",
                                   "Pipe Cost")
-        L = VectorVariable(number_of_pipes, "L", "m", "Pipe Length")
-        D = VectorVariable(number_of_pipes, "D", "m", "Pipe Diameter")
-        flow = VectorVariable(number_of_pipes, "q", "m^3/s", "Flow Rate")
-        V = VectorVariable(number_of_pipes, "v_f", "m/s", "Flow Velocity")
-        maxV = Variable("v_{max}", 1e20, "m/s", 'Maximum Flow Velocity')
-        H_loss = VectorVariable(number_of_pipes, "H_L", "m", "Head Loss")
+        L = VectorVariable(n_p, "L", "m", "Pipe Length")
+        D = VectorVariable(n_p, "D", "m", "Pipe Diameter")
+        flow = VectorVariable(n_p, "q", "m^3/s", "Flow Rate")
+        V = VectorVariable(n_p, "v_f", "m/s", "Flow Velocity")
+        maxV = VectorVariable(n_p, "v_{max}", 1e20*np.ones(n_p), "m/s", 'Maximum Flow Velocity')
+        H_loss = VectorVariable(n_p, "H_L", "m", "Head Loss")
         slack_out = VectorVariable(N, "S_{out}", "-", "Outflow Slack")
         slack_in = VectorVariable(N, "S_{in}", "-", "Inflow Slack")
-        slack_h = VectorVariable(number_of_pipes, "S_h", "-", "Head Slack")
-        totalCost = Variable("C", "m^3/s", "Total Cost")
+        slack_h = VectorVariable(n_p, "S_h", "-", "Head Slack")
+        totalCost = Variable("C", "-", "Total Cost")
         D_max = Variable("D_{max}", "m", "Maximum Diameter")
         D_min = Variable("D_{min}", "m", "Minimum Diameter")
         rho = Variable("\\rho", 1000, "kg/m^3", "Density")
@@ -33,9 +33,9 @@ class KT_FND(Model):
         g = Variable("g", 9.81, "m/s^2", "Gravity")
 
         if friction == 'DW':
-            relRough = VectorVariable(number_of_pipes, "\\bar{\\epsilon}", "-", "Relative Pipe Roughness")
-            Re = VectorVariable(number_of_pipes, "Re", "-", "Reynold's Number")
-            f = VectorVariable(number_of_pipes, "f", "-", "Friction Factor")
+            relRough = VectorVariable(n_p, "\\bar{\\epsilon}", "-", "Relative Pipe Roughness")
+            Re = VectorVariable(n_p, "Re", "-", "Reynold's Number")
+            f = VectorVariable(n_p, "f", "-", "Friction Factor")
 
         constraints = []
 
@@ -65,7 +65,7 @@ class KT_FND(Model):
                             Tight([slack_h[pipe_index] >= 1]),
                         ])
 
-            for pipe_index in range(number_of_pipes):
+            for pipe_index in range(n_p):
                 constraints += [V[pipe_index] <= maxV,
                                 pipeCost[pipe_index] == 1.1 * D[pipe_index] ** 1.5 * L[pipe_index] / units.m ** 2.5,
                                 V[pipe_index] == 4 * flow[pipe_index] / (np.pi * D[pipe_index] ** 2),
@@ -92,7 +92,7 @@ class KT_FND(Model):
                                 relRough[pipe_index] ** 0.823896,
                                     f[pipe_index] <= 1]
 
-            constraints += [totalCost >= np.sum(flow * pipeCost) *
+            constraints += [totalCost >= np.sum(pipeCost) *
                             (np.prod(slack_out) * np.prod(slack_in) * np.prod(slack_h)**penalty)]
         return constraints
 
