@@ -19,9 +19,10 @@ class KT_FND(Model):
         L = VectorVariable(n_p, "L", "m", "Pipe Length")
         D = VectorVariable(n_p, "D", "m", "Pipe Diameter")
         flow = VectorVariable(n_p, "q", "m^3/s", "Flow Rate")
+        dir = VectorVariable(2*n_p, "q_{+/-}", "-", "Flow Direction")
         V = VectorVariable(n_p, "v_f", "m/s", "Flow Velocity")
         maxV = VectorVariable(n_p, "v_{max}", 1e20*np.ones(n_p), "m/s", 'Maximum Flow Velocity')
-        H_loss = VectorVariable(n_p, "H_L", "m", "Head Loss")
+        H_loss = VectorVariable(n_p, "h", "m", "Head Loss")
         slack_out = VectorVariable(N, "S_{out}", "-", "Outflow Slack")
         slack_in = VectorVariable(N, "S_{in}", "-", "Inflow Slack")
         slack_h = VectorVariable(n_p, "S_h", "-", "Head Slack")
@@ -40,16 +41,19 @@ class KT_FND(Model):
         constraints = []
 
         with SignomialsEnabled():
-
+            for i in range(n_p):
+                constraints.extend([dir[i]*dir[n_p+i] == 1e-20,
+                                    dir[i] <= 1, dir[n_p+i] <= 1])
             for i in range(0, N):
                 flow_in = sink[i]
                 flow_out = source[i]
                 for pipe_index, node in topology_dict.items():
                     if node[0] == i:
-                        flow_in += flow[pipe_index]
+                        flow_in += flow[pipe_index]*dir[pipe_index]
+                        flow_out += flow[pipe_index]*dir[n_p+pipe_index]
                     if node[1] == i:
-                        flow_out += flow[pipe_index]
-
+                        flow_out += flow[pipe_index]*dir[pipe_index]
+                        flow_in += flow[pipe_index]*dir[n_p+pipe_index]
                 constraints.extend([
                     Tight([flow_in <= slack_out[i] * flow_out]),
                     Tight([flow_out <= slack_in[i] * flow_in]),
@@ -60,8 +64,10 @@ class KT_FND(Model):
                 for pipe_index, node in topology_dict.items():
                     if node[0] == i:
                         constraints.extend([
-                            Tight([H[node[0]] >= H_loss[pipe_index] + H[node[1]]]),
-                            Tight([H[node[0]] <= slack_h[pipe_index]*(H_loss[pipe_index] + H[node[1]])]),
+                            Tight([H[node[0]] >= H_loss[pipe_index]*dir[pipe_index] + H[node[1]]]),
+                            Tight([H[node[1]] >= H_loss[pipe_index]*dir[n_p+pipe_index] + H[node[0]]]),
+                            Tight([H[node[0]] <= slack_h[pipe_index]*(H_loss[pipe_index]*dir[pipe_index] + H[node[1]])]),
+                            Tight([H[node[1]] <= slack_h[pipe_index]*(H_loss[pipe_index]*dir[n_p+pipe_index] + H[node[0]])]),
                             Tight([slack_h[pipe_index] >= 1]),
                         ])
 

@@ -15,20 +15,20 @@ if __name__ == '__main__':
     sol1 = m1.localsolve(verbosity=2, reltol=1e-2, iteration_limit=150, x0=warm_start)
     print(sol1['cost'])
 
-    m2 = hanoi(friction='DW')
-    warm_start = {m2["D"]: (1.016 - 0.3048)*np.random.rand(len(m2.topology_dict)) + 0.3048}
-    sol2 = m2.localsolve(verbosity=2, reltol=1e-2, iteration_limit=150, x0=warm_start)
-    print(sol2['cost'])
-
-    m1 = hanoi_from_data(friction='HW')
-    warm_start = {m1["D"]: (1.016 - 0.3048)*np.random.rand(len(m1.topology_dict)) + 0.3048}
-    sol1 = m1.localsolve(verbosity=2, reltol=1e-2, iteration_limit=150, x0=warm_start)
-    print(sol1['cost'])
-
-    m2 = hanoi(friction='HW')
-    warm_start = {m2["D"]: (1.016 - 0.3048)*np.random.rand(len(m2.topology_dict)) + 0.3048}
-    sol2 = m2.localsolve(verbosity=2, reltol=1e-2, iteration_limit=150, x0=warm_start)
-    print(sol2['cost'])
+    # m2 = hanoi(friction='DW')
+    # warm_start = {m2["D"]: (1.016 - 0.3048)*np.random.rand(len(m2.topology_dict)) + 0.3048}
+    # sol2 = m2.localsolve(verbosity=2, reltol=1e-2, iteration_limit=150, x0=warm_start)
+    # print(sol2['cost'])
+    #
+    # m1 = hanoi_from_data(friction='HW')
+    # warm_start = {m1["D"]: (1.016 - 0.3048)*np.random.rand(len(m1.topology_dict)) + 0.3048}
+    # sol1 = m1.localsolve(verbosity=2, reltol=1e-2, iteration_limit=150, x0=warm_start)
+    # print(sol1['cost'])
+    #
+    # m2 = hanoi(friction='HW')
+    # warm_start = {m2["D"]: (1.016 - 0.3048)*np.random.rand(len(m2.topology_dict)) + 0.3048}
+    # sol2 = m2.localsolve(verbosity=2, reltol=1e-2, iteration_limit=150, x0=warm_start)
+    # print(sol2['cost'])
 
     draw_KT_network(sol1, m1.coordinates, m1.topology_dict)
 
