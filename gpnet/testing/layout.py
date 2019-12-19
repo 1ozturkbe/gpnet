@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import division
+from builtins import range
 import numpy as np
 import os
 from gpnet.known_topology_network_model import KT_FND
@@ -68,20 +71,20 @@ def ostfeld_n1(friction='DW'):
 
     m = KT_FND(N, topology_dict, friction=friction)
     if friction == 'DW':
-        roughness = {i: 0.26e-6 for i,v in roughness.iteritems()}
+        roughness = {i: 0.26e-6 for i,v in roughness.items()}
     elif friction != 'HW':
         print('Friction model %s is not yet supported.' % friction)
 
-    for idx, val in sinks.iteritems():
-        m.substitutions.update({m["\dot{V}_-"][idx]: val/3600}) # converting to per second
+    for idx, val in sinks.items():
+        m.substitutions.update({m["\dot{V}_-"][idx]: val/3600.}) # converting to per second
         m.substitutions.update({m["\dot{V}_+"][idx]: 0})
-    for idx, val in head.iteritems():
+    for idx, val in head.items():
         m.substitutions.update({m["H"][idx]: val})
         m.substitutions.update({m["\dot{V}_-"][idx]: 0})
         m.substitutions.update({m["\dot{V}_+"][idx]: sum(sinks.values())/3600.})
-    for idx, val in roughness.iteritems():
+    for idx, val in roughness.items():
         m.substitutions.update({m["\\epsilon"][idx]: val})
-    for idx, val in L.iteritems():
+    for idx, val in L.items():
         m.substitutions.update({m["L"][idx]: val})
 
     m.substitutions.update({
@@ -104,20 +107,20 @@ def hanoi_from_data(friction='DW'):
 
     m = KT_FND(N, topology_dict, friction=friction)
     if friction == 'DW':
-        roughness = {i: 0.26e-6 for i,v in roughness.iteritems()}
+        roughness = {i: 0.26e-6 for i,v in roughness.items()}
     elif friction != 'HW':
         print('Friction model %s is not yet supported.' % friction)
 
-    for idx, val in sinks.iteritems():
-        m.substitutions.update({m["\dot{V}_-"][idx]: val/3600}) # converting to per second
+    for idx, val in sinks.items():
+        m.substitutions.update({m["\dot{V}_-"][idx]: val/3600.}) # converting to per second
         m.substitutions.update({m["\dot{V}_+"][idx]: 0})
-    for idx, val in head.iteritems():
+    for idx, val in head.items():
         m.substitutions.update({m["H"][idx]: val})
         m.substitutions.update({m["\dot{V}_-"][idx]: 0})
         m.substitutions.update({m["\dot{V}_+"][idx]: sum(sinks.values())/3600.})
-    for idx, val in roughness.iteritems():
+    for idx, val in roughness.items():
         m.substitutions.update({m["\\epsilon"][idx]: val})
-    for idx, val in L.iteritems():
+    for idx, val in L.items():
         m.substitutions.update({m["L"][idx]: val})
 
     m.substitutions.update({
@@ -148,8 +151,8 @@ def small_graph(friction='DW'):
         print('Friction model %s is not yet supported.' % friction)
     m.substitutions.update({
         "L" : L,
-        "\dot{V}_-": np.array(sinks)/2,
-        "\dot{V}_+": np.array(sources)/2,
+        "\dot{V}_-": np.array(sinks)/2.,
+        "\dot{V}_+": np.array(sources)/2.,
         "H_{min}": [30 for _ in range(N)],
         m["H"][0]: 100,
         "D_{max}": 1.016,
