@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import os
 from gpnet.known_topology_network_model import KT_FND
