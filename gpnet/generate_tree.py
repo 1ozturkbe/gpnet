@@ -37,7 +37,7 @@ def find_convex_hull(coordinate_dict):
     :return:
     """
     hull_pts = {}
-    point_list = [value for key, value in coordinate_dict.items()]
+    point_list = [value for key, value in list(coordinate_dict.items())]
     cvx_hull = ConvexHull(point_list)
     for i in cvx_hull.vertices:
         hull_pts[i] = tuple(cvx_hull.points[i])

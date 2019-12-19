@@ -18,8 +18,8 @@ def forceAspect(ax, aspect=1):
     ax.set_aspect(abs((extent[1] - extent[0]) / (extent[3] - extent[2])) / aspect)
 
 def draw_KT_network(sol, coordinates, topology_dict):
-    coordinate_list = [[coordinates[i[0]], coordinates[i[1]]] for i in topology_dict.values()]
-    orig, dest = zip(*coordinate_list)
+    coordinate_list = [[coordinates[i[0]], coordinates[i[1]]] for i in list(topology_dict.values())]
+    orig, dest = list(zip(*coordinate_list))
     xmin, ymin, xmax, ymax = 1e10 * np.array([1, 1, -1, -1])
     # Arrow parameters for flow plotting
     hl = 400  # Arrow head length
@@ -50,7 +50,7 @@ def draw_KT_network(sol, coordinates, topology_dict):
                   width=1. / 3. * hwd[i], head_width=hwd[i], head_length=hl,
                   length_includes_head=True)
 
-    for i in coordinates.keys():
+    for i in list(coordinates.keys()):
         # Plotting sources and sinks
         ax1.plot(coordinates[i][0], coordinates[i][1], 'o', color='b', mfc='none', markersize=pwSr[i])
         ax1.plot(coordinates[i][0], coordinates[i][1], 'o', color='r', mfc='none', markersize=pwSk[i])

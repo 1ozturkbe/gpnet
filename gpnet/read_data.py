@@ -1,3 +1,4 @@
+from builtins import range
 import os
 
 def real_index(str_index):
@@ -38,7 +39,7 @@ def read_inp(file_directory, min_junc_index=0, min_pipe_index=0):
         data[markers[n]] = relevant_data
     # CLEANING DATA
     # Note: since python is zero-indexed, we remove 1 from indices.
-    for marker, relevant_data in data.iteritems():
+    for marker, relevant_data in data.items():
         if marker == j: # junctions
             for i in range(len(relevant_data)):
                 junction_index, elev, demand = relevant_data[i][0:3]
