@@ -12,7 +12,7 @@ if __name__ == '__main__':
     Tight.reltol = 10.**-3
     m1 = hanoi_from_data(friction='DW')
     warm_start = {m1["D"]: (1.016 - 0.3048)*np.random.rand(len(m1.topology_dict)) + 0.3048}
-    sol1 = m1.localsolve(verbosity=2, reltol=1e-2, iteration_limit=150, x0=warm_start)
+    sol1 = m1.penalty_ccp_solve(verbosity=2, reltol=1e-2, iteration_limit=150, x0=warm_start)
     print(sol1['cost'])
 
     # m2 = hanoi(friction='DW')
