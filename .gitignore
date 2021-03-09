@@ -6,4 +6,6 @@ latex/main.log
 *.aux
 *.gz
 *.m
+*.pyc
 latex/main.pdf
+gpnet.egg-info/

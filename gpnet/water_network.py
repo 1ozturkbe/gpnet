@@ -1,11 +1,7 @@
-from __future__ import print_function
-from __future__ import absolute_import
 from gpkit.constraints.tight import Tight
 from gpnet.draw_network import draw_KT_network
 from gpnet.testing.layout import hanoi, hanoi_from_data
 import numpy as np
-
-from robust.robust import RobustModel
 
 if __name__ == '__main__':
     # Changing Tightness requirement to within 0.1%
