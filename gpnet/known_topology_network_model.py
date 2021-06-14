@@ -20,10 +20,11 @@ class KT_FND(Model):
                                   "Pipe Cost")
         L = VectorVariable(n_p, "L", "m", "Pipe Length")
         D = VectorVariable(n_p, "D", "m", "Pipe Diameter")
-        flow = VectorVariable(2*n_p, "q", "m^3/s", "Flow Rate")
-        V = VectorVariable(2*n_p, "v_f", "m/s", "Flow Velocity")
+        flow = VectorVariable(n_p, "q", "m^3/s", "Flow Rate")
+        direct = VectorVariable(2*n_p, 'dir', '-', "Flow Direction")
+        V = VectorVariable(n_p, "v_f", "m/s", "Flow Velocity")
         maxV = VectorVariable(n_p, "v_{max}", 1e2*np.ones(n_p), "m/s", 'Maximum Flow Velocity')
-        H_loss = VectorVariable(2*n_p, "h", "m", "Head Loss")
+        H_loss = VectorVariable(n_p, "h", "m", "Head Loss")
         totalCost = Variable("C", "-", "Total Cost")
         D_max = Variable("D_{max}", "m", "Maximum Diameter")
         D_min = Variable("D_{min}", "m", "Minimum Diameter")
@@ -31,34 +32,36 @@ class KT_FND(Model):
         mu = Variable("\\mu", 8.9e-4, "kg/m/s", "Viscosity")
         g = Variable("g", 9.81, "m/s^2", "Gravity")
 
+        # Slacks
+        slack_out = VectorVariable(N, "S_{out}", "-", "Outflow Slack")
+        slack_in = VectorVariable(N, "S_{in}", "-", "Inflow Slack")
+        slack_h = VectorVariable(n_p, "S_h", "-", "Head Slack")
+
         if friction == 'DW':
             relRough = VectorVariable(n_p, "\\bar{\\epsilon}", "-", "Relative Pipe Roughness")
-            Re = VectorVariable(2*n_p, "Re", "-", "Reynold's Number")
-            f = VectorVariable(2*n_p, "f", "-", "Friction Factor")
+            Re = VectorVariable(n_p, "Re", "-", "Reynold's Number")
+            f = VectorVariable(n_p, "f", "-", "Friction Factor")
 
         constraints = []
 
         with SignomialsEnabled():
-            # for i in range(n_p):
-                # constraints.extend([dir[i]*dir[n_p+i] == 1e-20,
-                #                     dir[i] <= 1, dir[n_p+i] <= 1])
+            for i in range(n_p):
+                constraints.extend([direct[i]*direct[n_p+i] == 1e-20,
+                                    direct[i] <= 1, direct[n_p+i] <= 1])
             for i in range(0, N):
                 flow_in = sink[i]
                 flow_out = source[i]
                 for pipe_index, node in topology_dict.items():
                     if node[0] == i:
-                        # flow_in += flow[pipe_index]*dir[pipe_index]
-                        # flow_out += flow[pipe_index]*dir[n_p+pipe_index]
-                        flow_out += flow[pipe_index]
-                        flow_in += flow[n_p+pipe_index]
+                        flow_out += flow[pipe_index]*direct[pipe_index]
+                        flow_in += flow[pipe_index]*direct[n_p+pipe_index]
                     if node[1] == i:
-                        flow_in += flow[pipe_index]
-                        flow_out += flow[n_p+pipe_index]
+                        flow_in += flow[pipe_index]*direct[pipe_index]
+                        flow_out += flow[pipe_index]*direct[n_p+pipe_index]
                 constraints.extend([
-                    # Tight([flow_in <= units('m^3/s') + slack_out[i] * flow_out]),
-                    # Tight([flow_out <= units('m^3/s') + slack_in[i] * flow_in]),
-                    SignomialEquality(flow_in, flow_out),
-                    # Tight([slack_in[i] >= 1]), Tight([slack_out[i] >= 1]),
+                    Tight([flow_in <= slack_out[i] * flow_out]),
+                    Tight([flow_out <= slack_in[i] * flow_in]),
+                    Tight([slack_in[i] >= 1]), Tight([slack_out[i] >= 1]),
                     H[i] >= H_min[i]
                 ])
                 # Head loss constraints
@@ -66,19 +69,8 @@ class KT_FND(Model):
                     constraints.extend([flow[pipe_index]*flow[n_p+pipe_index] == 1e-10*flow.units**2])
                     if node[0] == i:
                         constraints.extend([
-                            # Try abs(H0 -H1) >= h01
-                            # SignomialEquality(H[node[0]] + H_loss[n_p+pipe_index],
-                            #                   H[node[1]] + H_loss[pipe_index])
-                            H[node[0]] + H_loss[n_p+pipe_index] <= 1*H.units + H[node[1]],
-                            H[node[0]] + 1*H.units >= H[node[1]] + H_loss[pipe_index],
-                            # H[node[0]] + H_loss[n_p+ pipe_index] >=
-                            #                   H[node[1]] + H_loss[pipe_index],
-                            # Tight([H[node[0]] + units('m') >= H_loss[pipe_index]*dir[pipe_index] + H[node[1]]]),
-                            # Tight([H[node[1]] + units('m') >= H_loss[pipe_index]*dir[n_p+pipe_index] + H[node[0]]]),
-                            # Tight([H[node[0]] <= units('m') + slack_h[pipe_index]*(H_loss[pipe_index]*dir[pipe_index] + H[node[1]])]),
-                            # Tight([H[node[1]] <= units('m') + slack_h[pipe_index]*(H_loss[pipe_index]*dir[n_p+pipe_index] + H[node[0]])]),
-                            # Tight([slack_h[pipe_index] >= 1]),
-                        ])
+                            H[node[0]] + direct[n_p+pipe_index]*H_loss[pipe_index] >=
+                                              H[node[1]] + direct[pipe_index]*H_loss[pipe_index]])
 
             for pipe_index in range(n_p):
                 constraints += [V[pipe_index] <= maxV, V[n_p+pipe_index] <= maxV,
@@ -90,19 +82,12 @@ class KT_FND(Model):
 
                 if friction == "HW":
                     constraints += [H_loss[pipe_index] >= 10.67*L[pipe_index] * (flow[pipe_index]/units('m^3/s')) ** 1.852 /
-                                                        ((rough[pipe_index]/units('m'))**1.852*(D[pipe_index]/units('m'))**4.8704),
-                                    H_loss[n_p+pipe_index] >= 10.67*L[pipe_index] * (flow[n_p+pipe_index]/units('m^3/s')) ** 1.852 /
-                                                        ((rough[pipe_index]/units('m'))**1.852*(D[pipe_index]/units('m'))**4.8704)],\
-                                   # H_loss[pipe_index]*H_loss[n_p+pipe_index] <= 1e-10*H_loss.units**2,
+                                                        ((rough[pipe_index]/units('m'))**1.852*(D[pipe_index]/units('m'))**4.8704)]
                                 # S (hydraulic slope H/L) = 10.67*Q^1.852 (volumetric flow rate) /
                                 # C^1.852 (pipe roughness) /d^4.8704 (pipe diameter)
-
-                if friction == 'DW':
+                elif friction == 'DW':
                     constraints += [H_loss[pipe_index] >= f[pipe_index] * L[pipe_index] * V[pipe_index] ** 2 / (
                                             2 * D[pipe_index] * g),
-                                    H_loss[n_p+pipe_index] >= f[pipe_index] * L[pipe_index] * V[n_p+pipe_index] ** 2 / (
-                                            2 * D[pipe_index] * g),
-                                    # H_loss[pipe_index]*H_loss[n_p+pipe_index] <= 1e-10*H_loss.units**2,
                                 relRough[pipe_index] == rough[pipe_index] / D[pipe_index],
                                 Re[pipe_index] == rho * V[pipe_index] * D[pipe_index] / mu,
                                 Re[n_p+pipe_index] == rho * V[n_p+pipe_index] * D[pipe_index] / mu,
@@ -113,18 +98,10 @@ class KT_FND(Model):
                                 relRough[pipe_index] ** 1.73526 + 0.0734922 * Re[pipe_index] ** -1.13629 *
                                 relRough[pipe_index] ** 0.0574655 + 0.000214297 * Re[pipe_index] ** 0.00035242 *
                                 relRough[pipe_index] ** 0.823896,
-                                f[n_p+pipe_index] ** 2.39794 >= 3.26853e-06 * Re[n_p+pipe_index] ** 0.0574443 *
-                                relRough[pipe_index] ** 0.364794 + 0.0001773 * Re[n_p+pipe_index] ** -0.529499 *
-                                relRough[pipe_index] ** -0.0810121 + 0.00301918 * Re[n_p+pipe_index] ** -0.0220498 *
-                                relRough[pipe_index] ** 1.73526 + 0.0734922 * Re[n_p+pipe_index] ** -1.13629 *
-                                relRough[pipe_index] ** 0.0574655 + 0.000214297 * Re[n_p+pipe_index] ** 0.00035242 *
-                                relRough[pipe_index] ** 0.823896,
-                                    f[pipe_index] <= 1,
-                                    f[n_p+pipe_index] <= 1]
-
-            # constraints += [totalCost >= np.sum(pipeCost) *
-            #                 (np.prod(slack_out) * np.prod(slack_in) * np.prod(slack_h)**penalty)]
-            constraints += [totalCost >= np.prod(pipeCost)]
+                                    f[pipe_index] <= 1]
+            constraints += [totalCost >= np.sum(pipeCost) *
+                            (np.prod(slack_out) * np.prod(slack_in) * np.prod(slack_h)**penalty)]
+            # constraints += [totalCost >= np.prod(pipeCost)]
         return constraints
 
 def subs_with_dict(m, varkey, dict):
