@@ -1,4 +1,4 @@
-from __future__ import division
+
 from builtins import range
 from gpkit import Model, Variable, VectorVariable, SignomialsEnabled, units
 from gpkit.constraints.tight import Tight
@@ -44,7 +44,7 @@ class KT_FND(Model):
             for i in range(0, N):
                 flow_in = sink[i]
                 flow_out = source[i]
-                for pipe_index, node in topology_dict.items():
+                for pipe_index, node in list(topology_dict.items()):
                     if node[0] == i:
                         flow_in += flow[pipe_index]
                     if node[1] == i:
@@ -57,7 +57,7 @@ class KT_FND(Model):
                     H[i] >= H_min[i]
                 ])
                 # Head loss constraints
-                for pipe_index, node in topology_dict.items():
+                for pipe_index, node in list(topology_dict.items()):
                     if node[0] == i:
                         constraints.extend([
                             Tight([H[node[0]] >= H_loss[pipe_index] + H[node[1]]]),
@@ -97,6 +97,6 @@ class KT_FND(Model):
         return constraints
 
 def subs_with_dict(m, varkey, dict):
-    for idx, val in dict.items():
+    for idx, val in list(dict.items()):
         m.substitutions.update({varkey[idx]:val})
 

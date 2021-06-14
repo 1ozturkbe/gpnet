@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import division
 from builtins import range
 import numpy as np
 import os
@@ -71,20 +69,20 @@ def ostfeld_n1(friction='DW'):
 
     m = KT_FND(N, topology_dict, friction=friction)
     if friction == 'DW':
-        roughness = {i: 0.26e-6 for i,v in roughness.items()}
+        roughness = {i: 0.26e-6 for i,v in list(roughness.items())}
     elif friction != 'HW':
         print('Friction model %s is not yet supported.' % friction)
 
-    for idx, val in sinks.items():
+    for idx, val in list(sinks.items()):
         m.substitutions.update({m["\dot{V}_-"][idx]: val/3600.}) # converting to per second
         m.substitutions.update({m["\dot{V}_+"][idx]: 0})
-    for idx, val in head.items():
+    for idx, val in list(head.items()):
         m.substitutions.update({m["H"][idx]: val})
         m.substitutions.update({m["\dot{V}_-"][idx]: 0})
         m.substitutions.update({m["\dot{V}_+"][idx]: sum(sinks.values())/3600.})
-    for idx, val in roughness.items():
+    for idx, val in list(roughness.items()):
         m.substitutions.update({m["\\epsilon"][idx]: val})
-    for idx, val in L.items():
+    for idx, val in list(L.items()):
         m.substitutions.update({m["L"][idx]: val})
 
     m.substitutions.update({
@@ -107,20 +105,20 @@ def hanoi_from_data(friction='DW'):
 
     m = KT_FND(N, topology_dict, friction=friction)
     if friction == 'DW':
-        roughness = {i: 0.26e-6 for i,v in roughness.items()}
+        roughness = {i: 0.26e-6 for i,v in list(roughness.items())}
     elif friction != 'HW':
         print('Friction model %s is not yet supported.' % friction)
 
-    for idx, val in sinks.items():
+    for idx, val in list(sinks.items()):
         m.substitutions.update({m["\dot{V}_-"][idx]: val/3600.}) # converting to per second
         m.substitutions.update({m["\dot{V}_+"][idx]: 0})
-    for idx, val in head.items():
+    for idx, val in list(head.items()):
         m.substitutions.update({m["H"][idx]: val})
         m.substitutions.update({m["\dot{V}_-"][idx]: 0})
         m.substitutions.update({m["\dot{V}_+"][idx]: sum(sinks.values())/3600.})
-    for idx, val in roughness.items():
+    for idx, val in list(roughness.items()):
         m.substitutions.update({m["\\epsilon"][idx]: val})
-    for idx, val in L.items():
+    for idx, val in list(L.items()):
         m.substitutions.update({m["L"][idx]: val})
 
     m.substitutions.update({
